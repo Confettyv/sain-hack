@@ -1,0 +1,13 @@
+.env*
+*.key
+*.token
+id_ed25519*
+*secret*
+*.bak
+*.zip
+__pycache__/
+.venv/
+.mypy_cache/
+.ruff_cache/
+answer*.json
+data/
