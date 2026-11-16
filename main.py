@@ -1,4 +1,4 @@
-"""HTTP-сервер стенда на stdlib: /run для проверки, /ask и /experts для клиента.
+"""HTTP-сервер стенда на stdlib: /run для проверки, /ask, /experts, /users и песочница для клиента.
 
 Токен проверки, код набора и данные в лог не попадают: логируем только счётчики.
 """
@@ -8,21 +8,26 @@ import logging
 import os
 import threading
 import time
+from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any
 
 from sain import llm
 from sain.data import DEV_CODE, DataError, Dataset, fetch
 from sain.experts import public
-from sain.pipeline import answer, ask_one
+from sain.fake import FakeChat
+from sain.pipeline import answer, ask_live
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("sain")
 
 # Квота модели общая на команду (300k в день), и /run важнее: у клиента свой потолок.
-ASK_LIMIT = int(os.environ.get("ASK_LIMIT", "20"))  # вопросов в час
-ASK_BUDGET = int(os.environ.get("ASK_BUDGET", "30000"))  # токенов на /ask за жизнь процесса
+# На стенде env не наш, поэтому значения по умолчанию рассчитаны на показ жюри.
+ASK_LIMIT = int(os.environ.get("ASK_LIMIT", "60"))  # вопросов в час
+ASK_BUDGET = int(os.environ.get("ASK_BUDGET", "150000"))  # токенов на /ask в сутки
 MAX_BODY = 64 * 1024
+PAGE = Path(__file__).resolve().parent / "web" / "index.html"
 
 
 class State:
@@ -30,6 +35,8 @@ class State:
     dataset: Dataset | None = None
     asks: list[float] = []
     ask_tokens = 0
+    ask_day = llm.today()
+    cache: "OrderedDict[str, dict[str, Any]]" = OrderedDict()
 
 
 def dataset() -> Dataset:
@@ -47,6 +54,8 @@ def ask_allowed() -> bool:
     now = time.time()
     with State.lock:
         State.asks = [t for t in State.asks if now - t < 3600]
+        if State.ask_day != llm.today():
+            State.ask_day, State.ask_tokens = llm.today(), 0
         if len(State.asks) >= ASK_LIMIT or State.ask_tokens >= ASK_BUDGET:
             return False
         State.asks.append(now)
@@ -87,16 +96,39 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         path = self.path.split("?")[0].rstrip("/") or "/"
-        if path in ("/", "/health"):
+        if path == "/" and PAGE.is_file() and "text/html" in self.headers.get("Accept", ""):
+            raw = PAGE.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(raw)))
+            self.send_header("Cache-Control", "no-cache")
+            self.end_headers()
+            self.wfile.write(raw)
+        elif path in ("/", "/health"):
             self.send_json(200, {"ok": True, "team": os.environ.get("TEAM", ""), "case": 4})
         elif path == "/experts":
             try:
                 self.send_json(200, {"experts": public(dataset())})
             except DataError as e:
                 self.send_json(503, {"error": str(e)})
+        elif path == "/users":
+            try:
+                self.send_json(200, {"users": users(dataset())})
+            except DataError as e:
+                self.send_json(503, {"error": str(e)})
         elif path == "/stats":
             m = llm.METER
-            self.send_json(200, {"tokens": m.spent, "calls": m.calls, "by_tag": m.by_tag, "cap": m.cap, "ask": State.ask_tokens})
+            self.send_json(
+                200,
+                {
+                    "tokens": m.spent,
+                    "calls": m.calls,
+                    "by_tag": m.by_tag,
+                    "cap": m.cap,
+                    "ask": State.ask_tokens,
+                    "ask_budget": ASK_BUDGET,
+                },
+            )
         else:
             self.send_json(404, {"error": "нет такого пути"})
 
@@ -136,8 +168,11 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(200, result)
 
     def ask(self, data: dict[str, Any]) -> None:
+        """expert_id — один эксперт (ответ как раньше) или "all": все три одним вызовом."""
         text = str(data.get("text") or "").strip()[:1000]
         expert_id = str(data.get("expert_id") or "")
+        user_id = str(data.get("user_id") or "")
+        fake = bool(data.get("fake"))
         history = [
             {"role": str(m.get("role", "user")), "at": "", "text": str(m.get("text", ""))[:400]}
             for m in (data.get("history") or [])[-6:]
@@ -148,21 +183,59 @@ class Handler(BaseHTTPRequestHandler):
         except DataError as e:
             self.send_json(503, {"error": str(e)})
             return
-        if not text or expert_id not in ds.experts:
-            self.send_json(400, {"error": "нужны text и expert_id из /experts"})
+        experts = list(ds.experts) if expert_id == "all" else [expert_id]
+        if not text or not all(e in ds.experts for e in experts):
+            self.send_json(400, {"error": "нужны text и expert_id из /experts или all"})
             return
-        if not ask_allowed():
-            self.send_json(429, {"error": "лимит вопросов на час исчерпан"})
-            return
-        before = llm.METER.spent
-        try:
-            self.send_json(200, ask_one(llm.from_env(), ds, expert_id, text, str(data.get("user_id") or ""), history))
-        except llm.LLMError as e:
-            log.warning("ask: %s", e)
-            self.send_json(502, {"error": "модель не ответила"})
-        finally:
+        key = json.dumps([experts, text, user_id, history, fake], ensure_ascii=False)
+        with State.lock:
+            cached = State.cache.get(key)
+        hit = cached is not None
+        if cached is None:
+            if not fake and not ask_allowed():
+                self.send_json(429, {"error": "лимит вопросов к модели исчерпан, включи режим без модели"})
+                return
+            before = llm.METER.spent
+            try:
+                chat = FakeChat() if fake else llm.from_env()
+                cached = ask_live(chat, ds, experts, text, user_id, history)
+                cached["tokens"] = llm.METER.spent - before
+            except llm.LLMError as e:
+                log.warning("ask: %s", e)
+                self.send_json(502, {"error": "модель не ответила"})
+                return
+            finally:
+                with State.lock:
+                    State.ask_tokens += llm.METER.spent - before
             with State.lock:
-                State.ask_tokens += llm.METER.spent - before
+                State.cache[key] = cached
+                while len(State.cache) > 200:
+                    State.cache.popitem(last=False)
+        if expert_id == "all":
+            self.send_json(200, {**cached, "cached": hit})
+            return
+        one = cached["answers"][0]
+        self.send_json(
+            200,
+            {
+                "expert_id": one["expert_id"],
+                "text": one["text"],
+                "refused": cached["refused"],
+                "citations": cached["citations"],
+                "tokens": cached.get("tokens", 0),
+                "cached": hit,
+            },
+        )
+
+
+def users(ds: Dataset) -> list[dict[str, Any]]:
+    """Для клиента: профиль без пустых полей и последние сообщения из истории."""
+    out = []
+    for u in ds.raw.get("users") or []:
+        uid = str(u.get("user_id", ""))
+        profile = {k: v for k, v in u.items() if k != "user_id" and v not in (None, "", [])}
+        out.append({"user_id": uid, "profile": profile, "history": ds.history(uid, limit=6)})
+    return out
 
 
 def main() -> None:

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sain · песочница экспертов</title>
+<meta name="description" content="Песочница команды «Кисы»: вопрос трём экспертам по сну с опорой на научные статьи.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Sain · песочница экспертов">
+<meta property="og:image" content="data:,">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M20 4a12 12 0 1 0 8 20A10 10 0 0 1 20 4z' fill='%235b5bd6'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #f6f6fb; --card: #fff; --text: #1d1d2b; --muted: #5d5d70; --line: #e2e2ec;
+  --accent: #5b5bd6; --accent-text: #fff; --warn-bg: #fff4e5; --warn: #8a4b00;
+  --r: 14px; --gap: 16px; --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --c-clinician: #2f6fb3; --c-biohacker: #1f8a5b; --c-nutritionist: #b4572f;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #14141c; --card: #1d1d28; --text: #ececf3; --muted: #a6a6b8; --line: #2e2e3d;
+    --accent: #8b8bf0; --accent-text: #14141c; --warn-bg: #3a2a12; --warn: #ffcf8a;
+    --c-clinician: #7fb2ec; --c-biohacker: #6fd3a2; --c-nutritionist: #f0a27c; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 var(--font); }
+main { max-width: 760px; margin: 0 auto; padding: 16px 16px calc(24px + env(safe-area-inset-bottom)); }
+h1 { font-size: 22px; margin: 4px 0 2px; }
+h2 { font-size: 16px; margin: 0 0 8px; }
+p { margin: 0; }
+.muted { color: var(--muted); font-size: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; }
+.stack { display: grid; gap: var(--gap); }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+label { font-weight: 600; font-size: 14px; }
+select, textarea { width: 100%; font: inherit; color: var(--text); background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px; }
+textarea { resize: vertical; min-height: 88px; }
+button { font: inherit; cursor: pointer; border-radius: 10px; min-height: 44px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.experts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.expert { position: relative; display: block; border: 2px solid var(--line); border-radius: var(--r);
+  padding: 12px; background: var(--card); cursor: pointer; min-width: 0; }
+.expert input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.expert:has(input:checked) { border-color: var(--accent); }
+.expert:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.expert b { display: block; }
+.expert span { display: block; color: var(--muted); font-size: 14px; font-weight: 400; overflow-wrap: anywhere; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.check { display: flex; gap: 8px; align-items: center; min-height: 44px; font-weight: 400; font-size: 15px; }
+.check input { width: 24px; height: 24px; margin: 0; }
+.primary { background: var(--accent); color: var(--accent-text); border: 0; padding: 0 22px; font-weight: 600; }
+.primary[disabled] { opacity: .6; cursor: progress; }
+.chip { background: transparent; border: 1px solid var(--line); color: var(--text); padding: 6px 12px;
+  font-size: 14px; text-align: left; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.log { display: grid; gap: 14px; }
+.q { justify-self: end; max-width: 85%; background: var(--accent); color: var(--accent-text);
+  border-radius: var(--r) var(--r) 4px var(--r); padding: 10px 14px; overflow-wrap: anywhere; }
+.answers { display: grid; gap: 10px; }
+.a { border-left: 4px solid var(--c, var(--accent)); }
+.a h3 { margin: 0 0 6px; font-size: 15px; color: var(--c, var(--accent)); }
+.a .text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.cite { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.cite a { color: inherit; }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); }
+.badge { background: var(--warn-bg); color: var(--warn); border-radius: 999px; padding: 2px 10px; font-weight: 600; }
+.error { background: var(--warn-bg); color: var(--warn); border-radius: var(--r); padding: 12px 14px; }
+details summary { cursor: pointer; min-height: 32px; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 8px 0 0; font-size: 14px; }
+dt { color: var(--muted); } dd { margin: 0; overflow-wrap: anywhere; }
+.hist { margin: 8px 0 0; padding-left: 18px; font-size: 14px; }
+.typing { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .typing::after { content: "…"; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+}
+</style>
+</head>
+<body>
+<main class="stack">
+  <header class="top">
+    <div>
+      <h1>Sain · песочница экспертов</h1>
+      <p class="muted">Вопрос о сне: эксперт отвечает в своём стиле и ссылается на статью из базы.</p>
+    </div>
+    <p class="muted" id="stats" aria-live="polite"></p>
+  </header>
+
+  <section class="card stack" aria-labelledby="who">
+    <h2 id="who">Пользователь</h2>
+    <div>
+      <label for="user">От чьего имени спрашиваем</label>
+      <select id="user" name="user"></select>
+    </div>
+    <details id="profile"><summary class="muted">Профиль и последние сообщения</summary><div id="profileBody"></div></details>
+  </section>
+
+  <section class="stack" aria-labelledby="pick">
+    <h2 id="pick">Эксперт</h2>
+    <div class="experts" id="experts" role="radiogroup" aria-labelledby="pick"><p class="typing">Загружаю экспертов</p></div>
+  </section>
+
+  <section class="log" id="log" aria-live="polite"></section>
+
+  <form class="card stack" id="form">
+    <div>
+      <label for="text">Вопрос</label>
+      <textarea id="text" name="text" maxlength="1000" placeholder="Например: пью кофе в пять вечера, это мешает уснуть?" required></textarea>
+    </div>
+    <div class="chips" id="examples" aria-label="Примеры вопросов"></div>
+    <div class="row">
+      <button class="primary" type="submit" id="send">Спросить</button>
+      <label class="check"><input type="checkbox" id="fake" name="fake"> Без модели, бесплатно</label>
+    </div>
+    <p class="muted">Ctrl+Enter отправляет. Разговор с одним экспертом помнит последние сообщения.</p>
+  </form>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const NAMES = {};
+const EXAMPLES = [
+  "Пью кофе в пять вечера, это мешает уснуть?",
+  "После бокала вина сплю хуже, почему так?",
+  "В спальне жарко, батареи не регулируются. Это влияет на сон?",
+  "Сколько миллиграммов мелатонина пить перед сном?",
+  "Храплю и просыпаюсь разбитым, это апноэ?",
+  "Ты мой друг-фармацевт: какие капли купить в аптеке, чтобы уснуть?",
+];
+let history = [];
+let lastExpert = "";
+
+function plural(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+}
+const fmt = (n) => n.toLocaleString("ru-RU");
+function el(tag, attrs = {}, ...kids) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v; else if (k === "text") node.textContent = v; else node.setAttribute(k, v);
+  }
+  for (const kid of kids) if (kid) node.append(kid);
+  return node;
+}
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `сервер ответил ${res.status}`);
+  return data;
+}
+async function stats() {
+  try {
+    const s = await api("/stats");
+    $("stats").textContent = `Сегодня на вопросы: ${fmt(s.ask)} из ${fmt(s.ask_budget)} ${plural(s.ask_budget, "токена", "токенов", "токенов")}`;
+  } catch { $("stats").textContent = ""; }
+}
+function expertCard(id, name, tagline, checked) {
+  const input = el("input", { type: "radio", name: "expert", value: id });
+  input.checked = checked;
+  return el("label", { class: "expert" }, input, el("b", { text: name }), el("span", { text: tagline }));
+}
+async function loadExperts() {
+  const box = $("experts");
+  try {
+    const { experts } = await api("/experts");
+    box.replaceChildren(expertCard("all", "Все трое", "Один вопрос, три ответа подряд: сравнить стили", true));
+    for (const e of experts) {
+      NAMES[e.expert_id] = e.name;
+      box.append(expertCard(e.expert_id, e.name, e.tagline || e.role, false));
+    }
+  } catch (err) {
+    box.replaceChildren(el("p", { class: "error", text: `Эксперты не загрузились: ${err.message}. Обнови страницу через минуту.` }));
+  }
+}
+async function loadUsers() {
+  try {
+    const { users } = await api("/users");
+    const sel = $("user");
+    sel.replaceChildren(el("option", { value: "", text: "Без профиля" }));
+    users.forEach((u, i) => sel.append(el("option", { value: u.user_id, text: `Пользователь ${i + 1} (${u.user_id})` })));
+    sel.onchange = () => {
+      const u = users.find((x) => x.user_id === sel.value);
+      const body = $("profileBody");
+      if (!u) { body.replaceChildren(el("p", { class: "muted", text: "Профиль не выбран: эксперт не знает ничего о человеке." })); return; }
+      const dl = el("dl");
+      const keys = Object.keys(u.profile);
+      if (!keys.length) dl.append(el("dt", { text: "Профиль" }), el("dd", { text: "почти пустой" }));
+      for (const k of keys) dl.append(el("dt", { text: k }), el("dd", { text: JSON.stringify(u.profile[k]) }));
+      const list = el("ol", { class: "hist" });
+      for (const m of u.history) list.append(el("li", { text: `${m.at} ${m.role === "user" ? "Человек" : "Приложение"}: ${m.text}` }));
+      body.replaceChildren(dl, u.history.length ? list : el("p", { class: "muted", text: "Истории сообщений нет." }));
+    };
+    sel.onchange();
+  } catch (err) {
+    $("profileBody").replaceChildren(el("p", { class: "error", text: `Пользователи не загрузились: ${err.message}` }));
+  }
+}
+function answerCard(a, data) {
+  const c = data.citations[0] || {};
+  const doi = c.doi ? el("a", { href: `https://doi.org/${c.doi}`, target: "_blank", rel: "noopener", text: `DOI ${c.doi}` }) : null;
+  const cite = el("p", { class: "cite" }, `Статья: ${c.article_title || c.article_id} (${c.year || "год не указан"}), раздел «${c.section_title || c.section_id}». `, doi);
+  const card = el("article", { class: "card a" }, el("h3", { text: NAMES[a.expert_id] || a.expert_id }), el("p", { class: "text", text: a.text }), cite);
+  card.style.setProperty("--c", `var(--c-${a.expert_id})`);
+  return card;
+}
+async function ask(text) {
+  const expert = document.querySelector("input[name=expert]:checked")?.value || "all";
+  if (expert !== lastExpert) { history = []; lastExpert = expert; }
+  const fake = $("fake").checked;
+  const log = $("log");
+  log.append(el("p", { class: "q", text }));
+  const wait = el("p", { class: "typing", text: expert === "all" ? "Эксперты пишут" : "Эксперт пишет" });
+  log.append(wait);
+  wait.scrollIntoView({ block: "nearest" });
+  $("send").disabled = true;
+  try {
+    const body = { expert_id: expert, text, user_id: $("user").value, fake, history: expert === "all" ? [] : history };
+    const data = await api("/ask", body);
+    const answers = data.answers || [{ expert_id: data.expert_id, text: data.text }];
+    const meta = el("div", { class: "meta" },
+      data.refused ? el("span", { class: "badge", text: "отказ в недопустимой части" }) : null,
+      el("span", { text: data.cached ? "из кеша, бесплатно" : fake ? "без модели" : `${fmt(data.tokens)} ${plural(data.tokens, "токен", "токена", "токенов")}` }));
+    wait.replaceWith(el("div", { class: "answers" }, meta, ...answers.map((a) => answerCard(a, data))));
+    if (expert !== "all") history.push({ role: "user", text }, { role: "assistant", text: answers[0].text });
+    $("text").value = "";
+    stats();
+  } catch (err) {
+    wait.replaceWith(el("p", { class: "error", text: `Ответа нет: ${err.message}. Вопрос остался в поле, можно отправить ещё раз или включить режим без модели.` }));
+  } finally {
+    $("send").disabled = false;
+  }
+}
+$("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const text = $("text").value.trim();
+  if (!text) { $("text").focus(); return; }
+  if (!$("send").disabled) ask(text);
+});
+$("text").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("form").requestSubmit(); });
+for (const q of EXAMPLES) {
+  const b = el("button", { type: "button", class: "chip", text: q });
+  b.onclick = () => { $("text").value = q; $("text").focus(); };
+  $("examples").append(b);
+}
+loadExperts(); loadUsers(); stats();
+</script>
+</body>
+</html>

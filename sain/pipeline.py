@@ -179,25 +179,25 @@ def answer(chat: Chat, ds: Dataset, deadline: float = DEADLINE) -> dict[str, Any
     return {"requests": [by_record[r["record_id"]] for r in ds.requests]}
 
 
-def ask_one(chat: Chat, ds: Dataset, expert_id: str, text: str, user_id: str, history: list[dict[str, str]]) -> dict[str, Any]:
-    """Один вопрос из клиента: тот же путь, группа из одного эксперта."""
-    g = Group("live", text, user_id, "", [("live", expert_id)], history)
+def ask_live(
+    chat: Chat, ds: Dataset, expert_ids: list[str], text: str, user_id: str, history: list[dict[str, str]]
+) -> dict[str, Any]:
+    """Вопрос из клиента: тот же путь, что у /run; несколько экспертов — один вызов на всех."""
+    g = Group("live", text, user_id, "", [(e, e) for e in expert_ids], history)
     d = classify(chat, ds, [g])["live"]
     texts = write(chat, ds, g, d)
     article = ds.articles[d.article]
     section = ds.sections[d.article][d.section]
+    citation = {
+        "article_id": d.article,
+        "section_id": d.section,
+        "article_title": article.get("title", ""),
+        "section_title": section.get("title", ""),
+        "year": article.get("year"),
+        "doi": article.get("doi", ""),
+    }
     return {
-        "expert_id": expert_id,
-        "text": texts[expert_id],
         "refused": d.kind == "attack",
-        "citations": [
-            {
-                "article_id": d.article,
-                "section_id": d.section,
-                "article_title": article.get("title", ""),
-                "section_title": section.get("title", ""),
-                "year": article.get("year"),
-                "doi": article.get("doi", ""),
-            }
-        ],
+        "citations": [citation],
+        "answers": [{"expert_id": e, "text": texts[e]} for e in expert_ids],
     }

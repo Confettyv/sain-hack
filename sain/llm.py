@@ -37,8 +37,13 @@ class Chat(Protocol):
     def ask(self, system: str, user: str, *, max_tokens: int, tag: str) -> Reply: ...
 
 
+def today() -> str:
+    """Сутки квоты считаем по Москве: сервер живёт неделю, лимит обнуляется раз в день."""
+    return time.strftime("%Y-%m-%d", time.gmtime(time.time() + 3 * 3600))
+
+
 class Meter:
-    """Сколько потрачено за процесс и не больше RPM запросов в минуту на всех потоках."""
+    """Сколько потрачено за сутки и не больше RPM запросов в минуту на всех потоках."""
 
     def __init__(self, rpm: int, cap: int) -> None:
         self.rpm = rpm
@@ -46,16 +51,22 @@ class Meter:
         self.spent = 0
         self.calls = 0
         self.by_tag: dict[str, int] = {}
+        self.day = today()
         self._starts: list[float] = []
         self._lock = threading.Lock()
+
+    def _roll(self) -> None:
+        if self.day != today():
+            self.day, self.spent, self.calls, self.by_tag = today(), 0, 0, {}
 
     def wait_slot(self) -> None:
         while True:
             with self._lock:
+                self._roll()
                 now = time.monotonic()
                 self._starts = [t for t in self._starts if now - t < 60]
                 if self.cap and self.spent >= self.cap:
-                    raise LLMError("исчерпан лимит токенов процесса (TOKEN_CAP)")
+                    raise LLMError("исчерпан дневной лимит токенов (TOKEN_CAP)")
                 if len(self._starts) < self.rpm:
                     self._starts.append(now)
                     return
@@ -64,6 +75,7 @@ class Meter:
 
     def add(self, tag: str, tokens: int) -> None:
         with self._lock:
+            self._roll()
             self.spent += tokens
             self.calls += 1
             self.by_tag[tag] = self.by_tag.get(tag, 0) + tokens
