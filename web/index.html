@@ -14,6 +14,7 @@
   --bg: #ffffff; --soft: #f4f4f7; --text: #18181b; --muted: #6b6b76; --line: #e4e4ea;
   --accent: #4f46e5; --on-accent: #fff;
   --c-clinician: #2563eb; --c-biohacker: #047857; --c-nutritionist: #c2410c;
+  --ease: cubic-bezier(.2, .8, .2, 1); --t: .2s;
   --r: 16px; --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 * { box-sizing: border-box; }
@@ -74,13 +75,23 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
 .send { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent);
   color: var(--on-accent); display: grid; place-items: center; }
 .send[disabled] { opacity: .45; cursor: default; }
+@media (hover: hover) {
+  .tab:not([aria-pressed="true"]):hover, .sample:hover { background: var(--line); }
+  .card:hover { box-shadow: 0 6px 18px rgba(24, 24, 27, .08); }
+  .send:not([disabled]):hover { background: #4338ca; }
+  .retry:hover { background: #fef3f2; }
+}
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: no-preference) {
+  button, textarea { transition: background-color var(--t) var(--ease), color var(--t) var(--ease),
+    border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), opacity var(--t) var(--ease), transform var(--t) var(--ease); }
+  button:not([disabled]):active { transform: scale(.96); transition-duration: .08s; }
+  .card:not(:active):hover { transform: translateY(-2px); }
   .dots i { animation: hop 1s infinite ease-in-out; }
   .dots i:nth-child(2) { animation-delay: .15s; }
   .dots i:nth-child(3) { animation-delay: .3s; }
   .bar { animation: glow 1.4s infinite ease-in-out; }
-  .pending, .in { animation: rise .45s cubic-bezier(.2, .8, .2, 1) both; }
+  .pending, .in { animation: rise .45s var(--ease) both; }
   .send[aria-busy="true"] { opacity: 1; }
   .send[aria-busy="true"] svg { display: none; }
   .send[aria-busy="true"]::after { content: ""; width: 18px; height: 18px; border-radius: 50%;
