@@ -1,4 +1,4 @@
-"""HTTP-сервер стенда на stdlib: /run для проверки, /ask, /experts, /users и песочница для клиента.
+"""HTTP-сервер стенда на stdlib: /run для проверки, /ask, /experts и песочница для клиента.
 
 Токен проверки, код набора и данные в лог не попадают: логируем только счётчики.
 """
@@ -33,6 +33,7 @@ PAGE = Path(__file__).resolve().parent / "web" / "index.html"
 
 class State:
     lock = threading.Lock()
+    load_lock = threading.Lock()
     dataset: Dataset | None = None
     asks: list[float] = []
     ask_tokens = 0
@@ -42,12 +43,17 @@ class State:
 
 def dataset() -> Dataset:
     """Набор для клиента: последний из /run, иначе dev по токену команды."""
-    with State.lock:
+    if State.dataset is not None:
+        return State.dataset
+    # сеть под отдельным замком: загрузка не держит /stats, лимиты и кеш
+    with State.load_lock:
         if State.dataset is None:
             token = os.environ.get("HACK_TEAM_TOKEN", "")
             if not token:
                 raise DataError("нет HACK_TEAM_TOKEN")
-            State.dataset = Dataset.from_payload(fetch(4, DEV_CODE, "Bearer " + token))
+            ds = Dataset.from_payload(fetch(4, DEV_CODE, "Bearer " + token))
+            with State.lock:
+                State.dataset = ds
         return State.dataset
 
 
@@ -112,11 +118,6 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(200, {"experts": public(dataset())})
             except DataError as e:
                 self.send_json(503, {"error": str(e)})
-        elif path == "/users":
-            try:
-                self.send_json(200, {"users": users(dataset())})
-            except DataError as e:
-                self.send_json(503, {"error": str(e)})
         elif path == "/stats":
             m = llm.METER
             self.send_json(
@@ -161,7 +162,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(502, {"error": str(e)})
             return
         log.info("run: групп %s, запросов %s", len({r.get("group_id") for r in ds.requests}), len(ds.requests))
-        result = answer(llm.from_env(), ds)
+        try:
+            result = answer(llm.from_env(), ds)
+        except Exception:  # noqa: BLE001 — попытка одна: лучше запасные ответы, чем не-200
+            log.exception("run: прогон упал, отвечаю без модели")
+            result = answer(FakeChat(), ds)
         with State.lock:
             State.dataset = ds
         m = llm.METER
@@ -172,7 +177,7 @@ class Handler(BaseHTTPRequestHandler):
         """expert_id — один эксперт (ответ как раньше) или "all": все три одним вызовом."""
         text = str(data.get("text") or "").strip()[:1000]
         expert_id = str(data.get("expert_id") or "")
-        user_id = str(data.get("user_id") or "")
+        user_id = ""  # клиент без входа: чужой профиль из набора в промпт не берём
         fake = bool(data.get("fake"))
         history = [
             {"role": str(m.get("role", "user")), "at": "", "text": str(m.get("text", ""))[:400]}
@@ -201,7 +206,7 @@ class Handler(BaseHTTPRequestHandler):
                 chat = FakeChat() if fake else llm.from_env()
                 cached = ask_live(chat, ds, experts, text, user_id, history)
                 cached["tokens"] = max(0, llm.METER.spent - before)
-            except llm.LLMError as e:
+            except Exception as e:  # noqa: BLE001 — любой сбой разбора/модели: ответ 502, не обрыв
                 log.warning("ask: %s", e)
                 self.send_json(502, {"error": "модель не ответила"})
                 return
@@ -209,8 +214,11 @@ class Handler(BaseHTTPRequestHandler):
                 with State.lock:
                     # счётчик модели обнуляется в полночь: разность может стать отрицательной
                     State.ask_tokens += max(0, llm.METER.spent - before)
+            if cached.get("degraded"):
+                log.warning("ask: запасной текст, в кеш не кладу")
             with State.lock:
-                State.cache[key] = cached
+                if not cached.get("degraded"):
+                    State.cache[key] = cached
                 while len(State.cache) > 200:
                     State.cache.popitem(last=False)
         if expert_id == "all":
@@ -225,19 +233,10 @@ class Handler(BaseHTTPRequestHandler):
                 "refused": cached["refused"],
                 "citations": cached["citations"],
                 "tokens": cached.get("tokens", 0),
+                "degraded": cached.get("degraded", False),
                 "cached": hit,
             },
         )
-
-
-def users(ds: Dataset) -> list[dict[str, Any]]:
-    """Для клиента: профиль без пустых полей и последние сообщения из истории."""
-    out = []
-    for u in ds.raw.get("users") or []:
-        uid = str(u.get("user_id", ""))
-        profile = {k: v for k, v in u.items() if k != "user_id" and v not in (None, "", [])}
-        out.append({"user_id": uid, "profile": profile, "history": ds.history(uid, limit=6)})
-    return out
 
 
 def main() -> None:

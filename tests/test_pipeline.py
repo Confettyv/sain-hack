@@ -96,3 +96,62 @@ class GuardTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EmptyArticle(FakeChat):
+    """Разбор указывает на статью без разделов: прогон не должен упасть."""
+
+    def ask(self, system: str, user: str, *, max_tokens: int, tag: str) -> Reply:
+        if tag == "classify":
+            items = [{"n": it["n"], "kind": "normal", "article": "art_empty"} for it in json.loads(user)["items"]]
+            return Reply(json.dumps({"items": items}), 0, 0, "stop")
+        return super().ask(system, user, max_tokens=max_tokens, tag=tag)
+
+
+class ListAnswers(FakeChat):
+    def ask(self, system: str, user: str, *, max_tokens: int, tag: str) -> Reply:
+        if tag == "classify":
+            return super().ask(system, user, max_tokens=max_tokens, tag=tag)
+        return Reply(json.dumps({"answers": ["не словарь"]}), 0, 0, "stop")
+
+
+class RobustnessTest(unittest.TestCase):
+    def ds(self):
+        from sain.data import Dataset
+
+        raw = dataset()
+        raw["articles"].append({"article_id": "art_empty", "title": "Empty", "sections": []})
+        return Dataset.from_payload(raw)
+
+    def test_article_without_sections(self) -> None:
+        out = answer(EmptyArticle(), self.ds())["requests"]
+        self.assertEqual(len(out), 6)
+        self.assertTrue(all(r["citations"][0]["article_id"] == "art_20" for r in out))
+
+    def test_answers_not_dict(self) -> None:
+        out = answer(ListAnswers(), self.ds())["requests"]
+        self.assertTrue(all(r["text"] for r in out))
+
+    def test_ask_marks_degraded(self) -> None:
+        from sain.pipeline import ask_live
+
+        got = ask_live(Broken(), self.ds(), ["clinician"], "Кофе вечером мешает?", "", [])
+        self.assertTrue(got["degraded"])
+
+
+class SearchTest(unittest.TestCase):
+    def test_skip_word_bounds(self) -> None:
+        from sain.search import SKIP
+
+        self.assertTrue(SKIP.search("References"))
+        self.assertTrue(SKIP.search("Author contributions"))
+        self.assertFalse(SKIP.search("Sleep preferences"))
+        self.assertFalse(SKIP.search("Parental authority and bedtime"))
+
+    def test_excerpt_without_periods(self) -> None:
+        from sain.data import Dataset
+        from sain.search import excerpt
+
+        raw = dataset()
+        raw["articles"][0]["sections"] = [{"section_id": "s1", "title": "Data", "text": "word " * 1000}]
+        self.assertTrue(excerpt(Dataset.from_payload(raw), "art_20", "s1", "word", limit=100))

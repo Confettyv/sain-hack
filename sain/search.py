@@ -12,8 +12,9 @@ from collections import Counter
 from sain.data import Dataset
 
 SKIP = re.compile(
-    r"reference|acknowledg|funding|conflict|competing|author|contribution|data availab|"
-    r"supplement|abbreviation|disclosure|ethic|declaration|consent|appendix|orcid",
+    # границы слов: «Sleep preferences» и «authority» — не служебные разделы
+    r"\b(?:references?\b|acknowledg|funding|conflicts? of|competing|authors?\b|contribution|"
+    r"data availab|supplement|abbreviation|disclosure|ethic|declaration|consent|appendix|orcid)",
     re.I,
 )
 WORD = re.compile(r"[a-z]{3,}")
@@ -79,6 +80,14 @@ def pick_section(ds: Dataset, article_id: str, query: str) -> str:
     return best
 
 
+def safe_section(ds: Dataset, article_id: str, query: str) -> tuple[str, str]:
+    """(статья, раздел) без исключений: у статьи нет разделов — первая статья, где они есть."""
+    for a in [article_id, *ds.articles]:
+        if a in ds.articles and usable(ds, a):
+            return a, pick_section(ds, a, query)
+    raise KeyError("в наборе нет статей с разделами")
+
+
 def excerpt(ds: Dataset, article_id: str, section_id: str, query: str, limit: int = 1600) -> str:
     """Кусок раздела вокруг совпавших слов: модели хватает, а токенов меньше."""
     text = " ".join(ds.sections[article_id][section_id].get("text", "").split())
@@ -97,4 +106,5 @@ def excerpt(ds: Dataset, article_id: str, section_id: str, query: str, limit: in
             continue
         keep.add(i)
         size += len(sentences[i]) + 1
-    return " ".join(sentences[i] for i in sorted(keep))
+    # длинный текст без точек: ни одно предложение не влезло
+    return " ".join(sentences[i] for i in sorted(keep)) or text[:limit]

@@ -99,7 +99,7 @@ def classify(chat: Chat, ds: Dataset, groups: list[Group]) -> dict[str, Decision
 
 
 def write(chat: Chat, ds: Dataset, g: Group, d: Decision) -> dict[str, str]:
-    d.section = search.pick_section(ds, d.article, d.keywords)
+    d.article, d.section = search.safe_section(ds, d.article, d.keywords)
     refused = d.kind == "attack"
     experts = g.experts
     system = prompts.WRITE.replace("{cards}", "\n\n".join(card(ds, e) for e in experts))
@@ -125,6 +125,8 @@ def write(chat: Chat, ds: Dataset, g: Group, d: Decision) -> dict[str, str]:
         try:
             reply = chat.ask(system, json.dumps(task, ensure_ascii=False), max_tokens=550 * len(todo), tag="write")
             answers = parse_json(reply.content).get("answers") or {}
+            if not isinstance(answers, dict):
+                raise ValueError("answers не объект")
         except (LLMError, ValueError, TypeError) as err:
             log.warning("ответ группы, попытка %s: %s", attempt + 1, err)
             continue
@@ -154,15 +156,14 @@ def answer(chat: Chat, ds: Dataset, deadline: float = DEADLINE) -> dict[str, Any
 
     def one(g: Group) -> tuple[Group, dict[str, str]]:
         d = decisions[g.gid]
-        if time.monotonic() - started > deadline:
-            d.section = search.pick_section(ds, d.article, d.keywords)
-            return g, {e: fallback(d.kind, e) for e in g.experts}
         try:
-            return g, write(chat, ds, g, d)
+            if time.monotonic() - started <= deadline:
+                return g, write(chat, ds, g, d)
         except Exception:  # noqa: BLE001 — прогон один, группа не должна его ронять
             log.exception("группа упала, запасной ответ")
-            d.section = d.section or search.pick_section(ds, d.article, d.keywords)
-            return g, {e: fallback(d.kind, e) for e in g.experts}
+        if not d.section:
+            d.article, d.section = search.safe_section(ds, d.article, d.keywords)
+        return g, {e: fallback(d.kind, e) for e in g.experts}
 
     with ThreadPoolExecutor(WORKERS) as pool:
         done = dict((g.gid, texts) for g, texts in pool.map(one, groups))
@@ -200,4 +201,5 @@ def ask_live(
         "refused": d.kind == "attack",
         "citations": [citation],
         "answers": [{"expert_id": e, "text": texts[e]} for e in expert_ids],
+        "degraded": any(texts[e] == fallback(d.kind, e) for e in expert_ids),
     }

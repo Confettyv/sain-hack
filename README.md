@@ -26,7 +26,7 @@ LLM_FAKE=1 PORT=8000 HACK_TEAM_TOKEN=... ./.venv/bin/python main.py
 
 На стенде: `sh start.sh`, зависимостей нет (`requirements.txt` пуст, только stdlib).
 Переменные стенда: `PORT`, `HACK_API_URL`, `HACK_TEAM_TOKEN`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`.
-Свои: `LLM_FAKE`, `LLM_REASONING` (low), `TOKEN_CAP` (200000), `ASK_LIMIT` (20 в час), `ASK_BUDGET` (30000).
+Свои: `LLM_FAKE`, `LLM_REASONING` (low), `TOKEN_CAP` (200000), `ASK_LIMIT` (60 в час), `ASK_BUDGET` (40000 в сутки).
 
 ## API для клиента
 
