@@ -59,6 +59,7 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
 .card { display: grid; gap: 2px; text-align: left; padding: 14px 16px; border-radius: 16px;
   border: 0; box-shadow: var(--lift); background: var(--bg); color: var(--muted); font-size: 14px; }
 .card .who { margin: 0; font-size: 15px; }
+.say { margin-top: 8px; padding-left: 12px; border-left: 2px solid var(--c); color: var(--text); font-size: 14px; line-height: 1.45; }
 .samples { display: flex; flex-wrap: wrap; }
 .sample { font-size: 15px; color: var(--text); background: var(--soft); border: 0; border-radius: 22px;
   padding: 10px 16px; min-height: 44px; text-align: left; }
@@ -147,6 +148,7 @@ textarea { flex: 1; min-width: 0; font: inherit; color: var(--text); background:
     <div class="empty" id="empty">
       <h2>Спросите о сне трёх экспертов</h2>
       <p>Каждый ответит по-своему и сошлётся на научную статью. Эксперты вымышленные, это не медицинская консультация.</p>
+      <p class="label" id="sayLabel" hidden>Как каждый начнёт ответ на вопрос «Почему я просыпаюсь в 4 утра?»</p>
       <div class="cards" id="cards"></div>
       <p class="label">Или начните с примера</p>
       <div class="samples" id="samples"></div>
@@ -178,6 +180,8 @@ const SAMPLES = [
 const STAGES = [[1500, "ищет статью"], [4000, "пишет ответ"]];
 const motion = matchMedia("(prefers-reduced-motion: no-preference)").matches;
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+const STAND = "https://team01.hack.be-healthy.tech";
+let base = "";
 const experts = {};
 let current = "all";
 let history = [];
@@ -194,7 +198,7 @@ async function api(path, body) {
   let res;
   try {
     const init = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
-    res = await fetch(path, { ...init, signal: AbortSignal.timeout(90000) });
+    res = await fetch(base + path, { ...init, signal: AbortSignal.timeout(90000) });
   } catch (err) {
     throw new Error(err.name === "TimeoutError" ? "сервер не ответил вовремя" : "нет связи с сервером");
   }
@@ -223,7 +227,11 @@ function pick(id) {
 }
 async function loadExperts() {
   try {
-    const { experts: list } = await api("/experts");
+    let list = await api("/experts").then((d) => d.experts).catch(() => null);
+    if (!list) {
+      base = STAND;
+      list = (await api("/experts")).experts;
+    }
     list.forEach((e) => (experts[e.expert_id] = e));
     $("menu").replaceChildren(...["all", ...list.map((e) => e.expert_id)].map((id) => {
       const b = el("button", "opt", id === "all" ? "Один вопрос, три разных ответа" : experts[id].tagline);
@@ -244,9 +252,11 @@ async function loadExperts() {
       b.type = "button";
       b.style.setProperty("--c", `var(--c-${e.expert_id})`);
       b.prepend(el("span", "who", e.name));
+      if (e.sample) b.append(el("span", "say", `«${e.sample}»`));
       b.onclick = () => pick(e.expert_id);
       return b;
     }));
+    $("sayLabel").hidden = !list.some((e) => e.sample);
     select("all");
     $("send").disabled = false;
   } catch (err) {

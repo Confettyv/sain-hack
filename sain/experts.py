@@ -15,9 +15,9 @@ FOLDER = Path(__file__).resolve().parent.parent / "experts"
 def recipe(expert_id: str) -> dict[str, str]:
     path = FOLDER / f"{expert_id}.md"
     if not path.is_file():
-        return {"name": expert_id, "tagline": "", "body": ""}
+        return {"name": expert_id, "tagline": "", "sample": "", "body": ""}
     lines = path.read_text(encoding="utf-8").splitlines()
-    meta = {"name": expert_id, "tagline": ""}
+    meta = {"name": expert_id, "tagline": "", "sample": ""}
     body: list[str] = []
     for line in lines[1:]:
         key, _, value = line.partition(":")
@@ -46,6 +46,7 @@ def public(ds: Dataset) -> list[dict[str, Any]]:
                 "expert_id": expert_id,
                 "name": own["name"],
                 "tagline": own["tagline"],
+                "sample": own["sample"],
                 "role": expert.get("role", ""),
                 "speech_style": expert.get("speech_style", ""),
             }
