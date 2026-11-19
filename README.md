@@ -89,7 +89,7 @@ LLM_FAKE=1 ./.venv/bin/python tools/score.py d4.json --validate api.token   # ф
 `d4.json` — dev-набор с эталоном (`GET /case/4/getData?dataset_code=case4-dev-v2`), в репозиторий
 не кладём. Токены и ключи — только в env, не в коде и не в логах.
 
-## Замеры на dev (16.11)
+## Замеры на dev (16–19.11)
 
 | Что | Значение |
 |---|---|
