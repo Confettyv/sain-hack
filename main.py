@@ -25,8 +25,7 @@ log = logging.getLogger("sain")
 # Квота модели общая на команду (300k в день), и /run важнее: у клиента свой потолок.
 # На стенде env не наш, поэтому значения по умолчанию рассчитаны на показ жюри.
 ASK_LIMIT = int(os.environ.get("ASK_LIMIT", "60"))  # вопросов в час
-# 40k: /ask стенда 40k + песочница mvm 40k + онлайн-прогон ~140k укладываются в 300k и TOKEN_CAP.
-ASK_BUDGET = int(os.environ.get("ASK_BUDGET", "40000"))  # токенов на /ask в сутки
+ASK_BUDGET = int(os.environ.get("ASK_BUDGET", "150000"))  # токенов на /ask в сутки
 MAX_BODY = 64 * 1024
 PAGE = Path(__file__).resolve().parent / "web" / "index.html"
 
