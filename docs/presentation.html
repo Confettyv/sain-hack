@@ -7,8 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 @page { size: 1280px 720px; margin: 0; }
-:root { --bg: #000; --text: #fff; --muted: #8c8c8c; --line: rgba(255,255,255,.14); --grid: rgba(255,255,255,.05);
-  --tile: #0a0a0a; --clinician: #5b93f0; --biohacker: #45b878; --nutritionist: #f08a4b; }
+:root { --bg: #f4f3ef; --text: #111; --muted: #6a6a66; --line: rgba(0,0,0,.12); --grid: rgba(0,0,0,.05);
+  --tile: #fff; --ink: #111; --clinician: #3f7be6; --biohacker: #2f9e5f; --nutritionist: #e2742f; }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font-family: Onest, Inter, system-ui, sans-serif; }
 section { width: 1280px; height: 720px; padding: 104px 48px 48px; position: relative; overflow: hidden; break-after: page;
@@ -16,7 +16,7 @@ section { width: 1280px; height: 720px; padding: 104px 48px 48px; position: rela
   background: linear-gradient(90deg, transparent calc(25% - 1px), var(--grid) 25%, transparent calc(25% + 1px),
     transparent calc(50% - 1px), var(--grid) 50%, transparent calc(50% + 1px),
     transparent calc(75% - 1px), var(--grid) 75%, transparent calc(75% + 1px)), var(--bg); }
-section::before { content: "SAIN.ONE"; position: absolute; left: 48px; top: 40px; font-size: 14px; font-weight: 500; letter-spacing: .02em; }
+section::before { content: "SAIN.ONE"; position: absolute; left: 48px; top: 40px; font-size: 14px; font-weight: 600; letter-spacing: .02em; }
 section::after { content: attr(data-n) " / 11"; position: absolute; right: 48px; top: 30px; font-size: 13px; font-weight: 500;
   border: 1.5px solid var(--text); border-radius: 999px; padding: 8px 18px; letter-spacing: .04em; }
 .kicker { color: var(--muted); font-size: 14px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
@@ -31,7 +31,7 @@ li::before { content: counter(n, decimal-leading-zero); position: absolute; left
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: auto; }
 .box { background: var(--tile); padding: 24px 26px; display: grid; gap: 10px; align-content: start; }
 .box h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; display: flex; gap: 10px; align-items: center; }
-.box p { font-size: 18px; color: #d6d6d6; }
+.box p { font-size: 18px; color: #3a3a37; }
 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
 .wordmark { font-size: 360px; font-weight: 600; letter-spacing: -.06em; line-height: .8; margin: 0 0 0 -12px; }
 .cover-title { font-size: 46px; font-weight: 600; letter-spacing: -.03em; line-height: 1.05; }
@@ -45,18 +45,19 @@ li::before { content: counter(n, decimal-leading-zero); position: absolute; left
 .path .box b { color: var(--muted); font-size: 14px; letter-spacing: .06em; }
 .screens { display: flex; gap: 24px; justify-content: center; margin-top: -4px; }
 .screens figure { margin: 0; display: grid; gap: 12px; justify-items: center; }
-.screens img { height: 520px; border-radius: 8px; border: 1px solid var(--line); }
+.screens img { height: 520px; border-radius: 8px; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.08); }
 .screens figcaption { color: var(--muted); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
 .flow { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .flow .box { padding: 20px 18px; }
 .flow .box + .box { border-left: 1px solid var(--line); }
 .flow .box h3 { font-size: 15px; }
-.flow .box p { font-size: 15px; color: var(--muted); }
-.flow .code { background: #fff; }
-.flow .code h3, .flow .code p { color: #000; }
+.flow .box p { font-size: 16px; color: var(--muted); }
+.flow .code { background: var(--ink); }
+.flow .code h3, .flow .code p { color: #fff; }
+.legend { color: var(--muted); font-size: 15px; margin-top: -14px; }
 .under { margin-top: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 21px; margin-top: auto; }
-td { padding: 18px 0; border-top: 1px solid var(--line); }
+td { padding: 14px 0; border-top: 1px solid var(--line); }
 td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spacing: -.02em; }
 .end { font-size: 96px; font-weight: 600; letter-spacing: -.045em; line-height: .95; text-transform: uppercase; margin-top: auto; }
 .pill { align-self: flex-start; border: 1.5px solid var(--text); border-radius: 999px; padding: 10px 22px; font-size: 15px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
@@ -67,12 +68,12 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
 <section data-n="1">
   <div class="wordmark">SAIN</div>
   <div class="cover-title">Эксперты по сну как плейлист</div>
-  <p class="muted">Кейс 4, команда 01 «Кисы». Один вопрос, три разных эксперта, каждый ответ опирается на научную статью</p>
+  <p class="muted">Кейс 4, команда «Кисы». Задаёшь вопрос о сне, отвечают три эксперта, каждый со ссылкой на научную статью</p>
   <div class="team">
     <div><b>Vitalia</b><span>капитан</span></div>
     <div><b>Stacie</b><span>бизнес-аналитик</span></div>
-    <div><b>Максим</b><span>Data Science, ревью кода</span></div>
-    <div><b>Алим</b><span>AI Engineer: бэкенд и клиент</span></div>
+    <div><b>Максим</b><span>данные, проверка кода</span></div>
+    <div><b>Алим</b><span>AI-инженер: сервер и сайт</span></div>
   </div>
 </section>
 
@@ -81,123 +82,125 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
   <h2>Человек плохо спит и ищет ответ в интернете</h2>
   <div class="cols">
     <div class="box"><h3>Советы спорят</h3><p>Форумы, блогеры и статьи говорят разное, и непонятно, кому верить.</p></div>
-    <div class="box"><h3>Нет источника</h3><p>Совет звучит уверенно, но не видно, на каком исследовании он стоит и к кому относится.</p></div>
-    <div class="box"><h3>Опасный совет рядом</h3><p>Легко получить дозу мелатонина или «диагноз» от чат-бота без врача.</p></div>
+    <div class="box"><h3>Нет источника</h3><p>Совет звучит уверенно, но непонятно, откуда он взят и кому подходит.</p></div>
+    <div class="box"><h3>Опасные советы</h3><p>Чат-бот легко назовёт дозу мелатонина или поставит «диагноз» без врача.</p></div>
   </div>
-  <p class="muted under">Sain нужен ассистент, у которого разные эксперты звучат по-разному, каждый ответ стоит на статье из базы, а диагнозы, препараты и дозы остаются врачу.</p>
+  <p class="muted under">Sain нужен помощник, у которого каждый эксперт говорит по-своему, любой ответ опирается на статью, а диагнозы, лекарства и дозы остаются за врачом.</p>
 </section>
 
 <section data-n="3">
   <div class="kicker">Решение</div>
-  <h2>Выбираешь эксперта или всех троих, спрашиваешь о сне и получаешь ответ в его стиле со ссылкой на статью и раздел</h2>
+  <h2>Выбрал эксперта, задал вопрос о сне, получил ответ в его стиле со ссылкой на статью</h2>
   <div class="path">
-    <div class="box"><b>01</b><h3>Выбор</h3><p>Карточки показывают, как каждый начнёт ответ на один и тот же вопрос</p></div>
-    <div class="box"><b>02</b><h3>Вопрос</h3><p>Своими словами или из готовых примеров</p></div>
-    <div class="box"><b>03</b><h3>Ответ</h3><p>Три стиля, одна статья: название, раздел, год, DOI</p></div>
-    <div class="box"><b>04</b><h3>Дальше</h3><p>«Спросить дальше» продолжает разговор с тем же экспертом и той же статьёй</p></div>
+    <div class="box"><b>01</b><h3>Выбор</h3><p>На карточке видно, как эксперт начнёт ответ</p></div>
+    <div class="box"><b>02</b><h3>Вопрос</h3><p>Своими словами или готовый пример</p></div>
+    <div class="box"><b>03</b><h3>Ответ</h3><p>Три разных стиля, одна статья: название, раздел, год</p></div>
+    <div class="box"><b>04</b><h3>Дальше</h3><p>Кнопка «Спросить дальше» продолжает разговор с тем же экспертом</p></div>
   </div>
 </section>
 
 <section data-n="4">
   <div class="kicker">Ключевые экраны</div>
   <div class="screens">
-    <figure><img src="img/choice.jpg" alt="Экран выбора эксперта"><figcaption>Выбор: разница видна до вопроса</figcaption></figure>
-    <figure><img src="img/answer.jpg" alt="Ответ трёх экспертов"><figcaption>Ответ со ссылкой на раздел</figcaption></figure>
-    <figure><img src="img/refusal.jpg" alt="Отказ в дозе мелатонина"><figcaption>Отказ звучит как эксперт</figcaption></figure>
+    <figure><img src="img/choice.jpg" alt="Экран выбора эксперта"><figcaption>Выбор: разница видна сразу</figcaption></figure>
+    <figure><img src="img/answer.jpg" alt="Ответ трёх экспертов"><figcaption>Ответ со ссылкой на статью</figcaption></figure>
+    <figure><img src="img/refusal.jpg" alt="Отказ в дозе мелатонина"><figcaption>Отказ: вежливо и к врачу</figcaption></figure>
   </div>
 </section>
 
 <section data-n="5">
   <div class="kicker">Дизайнерские решения</div>
-  <h2>Разница экспертов видна раньше, чем пользователь что-то спросит</h2>
+  <h2>Разница между экспертами видна ещё до вопроса</h2>
   <div class="two">
     <ul>
-      <li>«Все трое» по умолчанию: один вопрос сразу показывает три хода мысли</li>
-      <li>У каждого эксперта свой цвет: точка, полоса примера, карточка ответа</li>
-      <li>Пример начала ответа на одном вопросе вместо описания профессии</li>
+      <li>По умолчанию отвечают все трое: сразу видно три подхода</li>
+      <li>У каждого эксперта свой цвет</li>
+      <li>На карточке пример ответа, а не описание профессии</li>
     </ul>
     <ul>
-      <li>Отказ оформлен как ответ эксперта с меткой «вне компетенции» и безопасным шагом</li>
-      <li>Источник под каждым ответом: статья, раздел, год, ссылка DOI</li>
-      <li>Бренд Sain, светлая тема, шрифт Inter, работает с телефона и с ПК</li>
+      <li>Отказ выглядит как обычный ответ эксперта и подсказывает безопасный шаг</li>
+      <li>Под каждым ответом источник: статья, раздел, год</li>
+      <li>Стиль Sain, удобно с телефона и с компьютера</li>
     </ul>
   </div>
 </section>
 
 <section data-n="6">
   <div class="kicker">Архитектура</div>
-  <h2>Один процесс на Python без сторонних библиотек</h2>
+  <h2>Простой сервер на Python без лишних библиотек</h2>
   <div class="flow">
-    <div class="box"><h3>Клиент</h3><p>один HTML-файл, ходит в API стенда</p></div>
-    <div class="box"><h3>Разбор</h3><p>модель: атака или нет, статья, слова для поиска</p></div>
-    <div class="box code"><h3>Раздел</h3><p>код: BM25 по разделам статьи</p></div>
-    <div class="box"><h3>Ответы</h3><p>модель: три эксперта одним вызовом</p></div>
-    <div class="box code"><h3>Фильтр</h3><p>код: дозы, диагнозы; повтор или запасной текст</p></div>
+    <div class="box"><h3>Сайт</h3><p>одна страница, обращается к серверу</p></div>
+    <div class="box"><h3>Разбор</h3><p>модель понимает вопрос и подбирает статью</p></div>
+    <div class="box code"><h3>Раздел</h3><p>код находит нужный раздел статьи по словам</p></div>
+    <div class="box"><h3>Ответы</h3><p>модель пишет сразу за трёх экспертов</p></div>
+    <div class="box code"><h3>Проверка</h3><p>код убирает дозы и диагнозы</p></div>
   </div>
+  <p class="legend">Тёмные шаги делает код, светлые делает модель</p>
   <div class="cols under">
-    <div class="box"><h3>API</h3><p>/run весь набор одним JSON, /ask чат клиента, /experts карточки</p></div>
-    <div class="box"><h3>Надёжность</h3><p>/run не падает: при любом сбое группа получает запасной текст с той же ссылкой</p></div>
-    <div class="box"><h3>Лёгкость</h3><p>~1 100 строк, ~20 МБ памяти при лимите стенда 512 МБ</p></div>
+    <div class="box"><h3>Три адреса</h3><p>/run проверяет весь набор, /ask отвечает в чате, /experts отдаёт карточки</p></div>
+    <div class="box"><h3>Надёжность</h3><p>Даже если что-то сломалось, пользователь получит ответ со ссылкой</p></div>
+    <div class="box"><h3>Лёгкость</h3><p>Около 1 100 строк кода и 20 МБ памяти из 512 доступных</p></div>
   </div>
 </section>
 
 <section data-n="7">
   <div class="kicker">ИИ-часть</div>
-  <h2>Модель пишет, код решает, где риск</h2>
+  <h2>Модель пишет текст, код следит за безопасностью</h2>
   <div class="two">
     <ul>
-      <li>Два вызова модели на вопрос: разбор и письмо. Реплики разбираются пачкой</li>
-      <li>Раздел статьи выбирает код, а не модель: ссылка не выдумывается</li>
-      <li>У тройки экспертов одна ссылка, разный ход мысли</li>
+      <li>Два обращения к модели: понять вопрос и написать ответ</li>
+      <li>Раздел статьи выбирает код, поэтому ссылка всегда настоящая</li>
+      <li>Три эксперта ссылаются на одну статью, но рассуждают по-разному</li>
     </ul>
     <ul>
-      <li>Эксперты как данные: роль и стиль из набора Sain плюс рецепт в файле. Новый эксперт без кода</li>
-      <li>Фильтр кодом ловит дозы с единицами и диагнозы, тогда один повтор, затем безопасный запасной текст</li>
-      <li>Живой чат помнит статью прошлого ответа для «а откуда это?»</li>
+      <li>Эксперт описан в файле: нового можно добавить без программиста</li>
+      <li>Если в ответ попала доза или диагноз, модель переписывает его, а при повторе выдаётся безопасный текст</li>
+      <li>Чат помнит прошлую статью и отвечает на «а откуда это?»</li>
     </ul>
   </div>
 </section>
 
 <section data-n="8">
   <div class="kicker">Стоимость и скорость</div>
-  <h2>Весь dev-набор за 73 секунды и 81 тыс. токенов</h2>
+  <h2>Весь тестовый набор за 73 секунды и 81 тыс. токенов</h2>
   <table>
-    <tr><td>Dev-набор, 60 запросов: атаки и обычные вопросы по эталону</td><td>S 1.0 · G 1.0</td></tr>
-    <tr><td>Узнаваемость эксперта, 12 ответов судьёй</td><td>12 из 12</td></tr>
-    <tr><td>Прогон dev-набора: время и токены</td><td>73 с · 81k</td></tr>
-    <tr><td>Онлайн-набор, 99 запросов (оценка)</td><td>~135k из 300k</td></tr>
-    <tr><td>Один вопрос всем трём экспертам в чате</td><td>~4,3k токенов</td></tr>
+    <tr><td>Опасные вопросы: правильный отказ со ссылкой</td><td>30 из 30</td></tr>
+    <tr><td>Обычные вопросы: ответ с верной ссылкой</td><td>30 из 30</td></tr>
+    <tr><td>Судья угадал эксперта только по тексту</td><td>12 из 12</td></tr>
+    <tr><td>Весь тестовый набор: время и токены</td><td>73 с · 81 тыс.</td></tr>
+    <tr><td>Онлайн-набор, 99 вопросов (оценка)</td><td>~135 тыс. из 300 тыс.</td></tr>
+    <tr><td>Один вопрос всем трём экспертам в чате</td><td>~4,3 тыс. токенов</td></tr>
   </table>
 </section>
 
 <section data-n="9">
   <div class="kicker">Требования заказчика</div>
-  <h2>Медицина, честность данных, тон</h2>
+  <h2>Безопасность, точность и свой голос у каждого</h2>
   <div class="cols">
-    <div class="box"><h3>Медицина</h3><p>Нет диагнозов, оценки препаратов, доз и методов без исследований. Отказ мягкий: к врачу, и один безопасный шаг по статье.</p></div>
-    <div class="box"><h3>Честность данных</h3><p>Только то, что следует из раздела статьи. Числа только как условия исследования. Связь не выдаётся за причину.</p></div>
-    <div class="box"><h3>Тон</h3><p>Свой у каждого и узнаётся без подписи. Эксперты вымышлены, это видно на экране.</p></div>
+    <div class="box"><h3>Безопасность</h3><p>Без диагнозов, доз и оценки лекарств. Вместо этого мягко советуем врача и даём один безопасный шаг из статьи.</p></div>
+    <div class="box"><h3>Точность</h3><p>Говорим только то, что есть в статье. Цифры приводим как условия исследования, а не как норму.</p></div>
+    <div class="box"><h3>Голос</h3><p>У каждого эксперта свой стиль, его узнают без подписи. Эксперты вымышленные, и это указано на экране.</p></div>
   </div>
   <div class="cols under">
-    <div class="box" style="--c: var(--clinician)"><h3><span class="dot"></span>Клиницист</h3><p>На «вы», вывод, сила доказательств, к кому относится</p></div>
-    <div class="box" style="--c: var(--biohacker)"><h3><span class="dot"></span>Биохакер</h3><p>На «ты», эксперимент строками: гипотеза, меняем, меряем</p></div>
-    <div class="box" style="--c: var(--nutritionist)"><h3><span class="dot"></span>Нутрициолог</h3><p>На «ты», тепло, одна маленькая замена в обычном дне</p></div>
+    <div class="box" style="--c: var(--clinician)"><h3><span class="dot"></span>Клиницист</h3><p>На «вы»: вывод, насколько он надёжен и кому подходит</p></div>
+    <div class="box" style="--c: var(--biohacker)"><h3><span class="dot"></span>Биохакер</h3><p>На «ты»: проверь на себе, что поменять и что замерить</p></div>
+    <div class="box" style="--c: var(--nutritionist)"><h3><span class="dot"></span>Нутрициолог</h3><p>На «ты», тепло: одна маленькая замена в привычном дне</p></div>
   </div>
 </section>
 
 <section data-n="10">
-  <div class="kicker">Что пробовали и отвергли</div>
-  <h2>Выбирали надёжность и проверяемую ссылку</h2>
+  <div class="kicker">Что пробовали</div>
+  <h2>От чего отказались и почему</h2>
   <div class="two">
     <ul>
-      <li>Несколько ссылок в ответе: каждая лишняя рискует уйти в статью, которой нет среди допустимых</li>
-      <li>Выбор раздела моделью: раздел выбирает код поиском по тексту, ссылка проверяемая</li>
-      <li>Отдельный вызов на каждого эксперта: один вызов на тройку дешевле, ссылка одна</li>
+      <li>Несколько ссылок в ответе: больше шанс сослаться не на ту статью</li>
+      <li>Выбор раздела моделью: код делает это точнее, и это легко проверить</li>
+      <li>Отдельный запрос на каждого эксперта: дороже, а ссылки могут разойтись</li>
     </ul>
     <ul>
-      <li>Готовые ответы на примеры и урезание истории: экономия токенов не стоит потери живости</li>
-      <li>Минимальное рассуждение модели: экономия не стоит риска в день показа</li>
-      <li>Другие модели в песочнице: жюри должно видеть ту же модель, что оценивают</li>
+      <li>Заготовленные ответы на примеры: дешевле, но ответы теряют живость</li>
+      <li>Урезанное рассуждение модели: экономия не стоит риска на показе</li>
+      <li>Другие модели в песочнице: жюри должно видеть ту же модель, что и в оценке</li>
     </ul>
   </div>
 </section>
@@ -206,9 +209,9 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
   <div class="kicker">Что дальше</div>
   <h2>От демо к продукту Sain</h2>
   <ul>
-    <li>Ответ первого эксперта появляется раньше остальных, потоковый вывод</li>
-    <li>Новые приёмы атак из нашей проверки: «меню на неделю в граммах», просьба показать системный промпт</li>
-    <li>Ответы с учётом данных сна пользователя из приложения</li>
+    <li>Ответы появляются по мере написания, без ожидания всех трёх</li>
+    <li>Защита от новых уловок вроде «меню на неделю в граммах»</li>
+    <li>Советы с учётом данных сна из приложения Sain</li>
   </ul>
   <div class="end">Задайте вопрос о сне всем троим</div>
   <div class="pill">team01.hack.be-healthy.tech</div>
