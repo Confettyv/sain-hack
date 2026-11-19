@@ -48,6 +48,10 @@ def catalog(ds: Dataset) -> str:
     return "\n".join(lines)
 
 
+def titles(ds: Dataset) -> str:
+    return "\n".join(f"{aid} ({article.get('year', '')}): {article.get('title', '')}" for aid, article in ds.articles.items())
+
+
 def usable(ds: Dataset, article_id: str) -> list[dict]:
     sections = [s for s in ds.sections.get(article_id, {}).values() if s.get("text", "").strip()]
     good = [s for s in sections if not SKIP.search(s.get("title", ""))]

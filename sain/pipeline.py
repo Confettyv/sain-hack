@@ -63,8 +63,8 @@ def _history(ds: Dataset, g: Group) -> list[dict[str, str]]:
     return (ds.history(g.user_id, g.at) + g.history)[-6:]
 
 
-def classify(chat: Chat, ds: Dataset, groups: list[Group], extra: str = "") -> dict[str, Decision]:
-    system = prompts.CLASSIFY.replace("{catalog}", search.catalog(ds)) + extra
+def classify(chat: Chat, ds: Dataset, groups: list[Group], extra: str = "", catalog: str = "") -> dict[str, Decision]:
+    system = prompts.CLASSIFY.replace("{catalog}", catalog or search.catalog(ds)) + extra
     articles = list(ds.articles)
     result: dict[str, Decision] = {}
     for start in range(0, len(groups), BATCH):
@@ -194,7 +194,7 @@ def ask_live(
 ) -> dict[str, Any]:
     """Вопрос из клиента: тот же путь, что у /run; несколько экспертов — один вызов на всех."""
     g = Group("live", text, user_id, "", [(e, e) for e in expert_ids], history, last_article)
-    d = classify(chat, ds, [g], prompts.LIVE_CLASSIFY)["live"]
+    d = classify(chat, ds, [g], prompts.LIVE_CLASSIFY, search.titles(ds))["live"]
     texts = write(chat, ds, g, d, prompts.LIVE_WRITE)
     offtopic = d.topic == "offtopic" and d.kind == "normal"
     article = ds.articles[d.article]
