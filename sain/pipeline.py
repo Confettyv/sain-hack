@@ -31,6 +31,7 @@ class Group:
     at: str
     records: list[tuple[str, str]] = field(default_factory=list)  # (record_id, expert_id)
     history: list[dict[str, str]] = field(default_factory=list)  # для клиента: разговор в чате
+    last_article: str = ""
 
     @property
     def experts(self) -> list[str]:
@@ -63,12 +64,15 @@ def _history(ds: Dataset, g: Group) -> list[dict[str, str]]:
 
 def classify(chat: Chat, ds: Dataset, groups: list[Group]) -> dict[str, Decision]:
     system = prompts.CLASSIFY.replace("{catalog}", search.catalog(ds))
+    if any(g.last_article in ds.articles for g in groups):
+        system += prompts.FOLLOW_UP
     articles = list(ds.articles)
     result: dict[str, Decision] = {}
     for start in range(0, len(groups), BATCH):
         chunk = groups[start : start + BATCH]
         items = [
             {"n": i + 1, "text": g.text, "history": [m["text"][:200] for m in _history(ds, g) if m["role"] == "user"][-3:]}
+            | ({"last_article": g.last_article} if g.last_article in ds.articles else {})
             for i, g in enumerate(chunk)
         ]
         got: dict[int, dict[str, Any]] = {}
@@ -181,10 +185,16 @@ def answer(chat: Chat, ds: Dataset, deadline: float = DEADLINE) -> dict[str, Any
 
 
 def ask_live(
-    chat: Chat, ds: Dataset, expert_ids: list[str], text: str, user_id: str, history: list[dict[str, str]]
+    chat: Chat,
+    ds: Dataset,
+    expert_ids: list[str],
+    text: str,
+    user_id: str,
+    history: list[dict[str, str]],
+    last_article: str = "",
 ) -> dict[str, Any]:
     """Вопрос из клиента: тот же путь, что у /run; несколько экспертов — один вызов на всех."""
-    g = Group("live", text, user_id, "", [(e, e) for e in expert_ids], history)
+    g = Group("live", text, user_id, "", [(e, e) for e in expert_ids], history, last_article)
     d = classify(chat, ds, [g])["live"]
     texts = write(chat, ds, g, d)
     article = ds.articles[d.article]

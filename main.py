@@ -184,6 +184,7 @@ class Handler(BaseHTTPRequestHandler):
             for m in (data.get("history") or [])[-6:]
             if isinstance(m, dict)
         ]
+        last_article = str(data.get("article") or "")
         try:
             ds = dataset()
         except DataError as e:
@@ -193,7 +194,7 @@ class Handler(BaseHTTPRequestHandler):
         if not text or not all(e in ds.experts for e in experts):
             self.send_json(400, {"error": "нужны text и expert_id из /experts или all"})
             return
-        key = json.dumps([experts, text, user_id, history, fake], ensure_ascii=False)
+        key = json.dumps([experts, text, user_id, history, last_article, fake], ensure_ascii=False)
         with State.lock:
             cached = State.cache.get(key)
         hit = cached is not None
@@ -204,7 +205,7 @@ class Handler(BaseHTTPRequestHandler):
             before = llm.METER.spent
             try:
                 chat = FakeChat() if fake else llm.from_env()
-                cached = ask_live(chat, ds, experts, text, user_id, history)
+                cached = ask_live(chat, ds, experts, text, user_id, history, last_article)
                 cached["tokens"] = max(0, llm.METER.spent - before)
             except Exception as e:  # noqa: BLE001 — любой сбой разбора/модели: ответ 502, не обрыв
                 log.warning("ask: %s", e)

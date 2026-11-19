@@ -138,6 +138,21 @@ class RobustnessTest(unittest.TestCase):
         got = ask_live(Broken(), self.ds(), ["clinician"], "Кофе вечером мешает?", "", [])
         self.assertTrue(got["degraded"])
 
+    def test_last_article_reaches_classify(self) -> None:
+        from sain.pipeline import ask_live
+
+        class Spy(FakeChat):
+            items: list = []
+
+            def ask(self, system: str, user: str, *, max_tokens: int, tag: str) -> Reply:
+                if tag == "classify":
+                    Spy.items += json.loads(user)["items"]
+                return super().ask(system, user, max_tokens=max_tokens, tag=tag)
+
+        ask_live(Spy(), self.ds(), ["clinician"], "На что ты ссылался?", "", [], "art_20")
+        ask_live(Spy(), self.ds(), ["clinician"], "На что ты ссылался?", "", [], "art_нет")
+        self.assertEqual([it.get("last_article") for it in Spy.items], ["art_20", None])
+
 
 class SearchTest(unittest.TestCase):
     def test_skip_word_bounds(self) -> None:

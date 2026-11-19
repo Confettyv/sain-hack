@@ -17,33 +17,36 @@
   --r: 16px; --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 * { box-sizing: border-box; }
-html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 var(--font);
-  display: flex; flex-direction: column; }
+body { margin: 0; min-height: 100vh; min-height: 100dvh; background: var(--bg); color: var(--text);
+  font: 16px/1.55 var(--font); display: flex; flex-direction: column; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button { font: inherit; cursor: pointer; }
 .wrap { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 16px; }
 
 header { position: sticky; top: 0; z-index: 2; background: rgba(255,255,255,.94);
   backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-header .wrap { padding-top: 12px; padding-bottom: 12px; }
-h1 { margin: 0 0 10px; font-size: 17px; font-weight: 700; }
+header .wrap { padding-top: 10px; padding-bottom: 10px; }
+h1 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
 h1 span { color: var(--muted); font-weight: 400; }
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
-.tab { flex: none; font: inherit; font-size: 15px; min-height: 44px; padding: 0 14px; border-radius: 999px;
-  border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
+.tab { flex: 1 1 auto; font-size: 14px; min-height: 44px; padding: 0 8px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--text); }
 .tab[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: #fff; }
-.hint { margin: 8px 0 0; color: var(--muted); font-size: 14px; min-height: 22px; }
 
 .chat { flex: 1; }
-.chat .wrap { display: grid; gap: 18px; padding-top: 20px; padding-bottom: 20px; }
-.empty { color: var(--muted); text-align: center; padding: 40px 0 8px; }
-.empty p { margin: 0 0 16px; }
-.samples { display: grid; gap: 8px; justify-items: center; }
-.sample { font: inherit; font-size: 15px; color: var(--text); background: var(--soft); border: 0;
-  border-radius: 12px; padding: 10px 14px; min-height: 44px; cursor: pointer; text-align: left; max-width: 100%; }
+.chat .wrap { display: grid; gap: 16px; padding-top: 20px; padding-bottom: 20px; }
+.empty { color: var(--muted); padding: 12px 0 8px; display: grid; gap: 12px; }
+.empty p { margin: 0; }
+.cards, .samples { display: grid; gap: 8px; }
+.card { display: grid; gap: 2px; text-align: left; padding: 12px 14px; border-radius: 12px;
+  border: 1px solid var(--line); border-left: 4px solid var(--c); background: var(--bg); color: var(--muted); font-size: 14px; }
+.card .who { margin: 0; font-size: 15px; }
+.sample { font-size: 15px; color: var(--text); background: var(--soft); border: 0; border-radius: 12px;
+  padding: 10px 14px; min-height: 44px; text-align: left; }
 .q { justify-self: end; max-width: 85%; margin: 0; padding: 10px 14px; background: var(--accent);
   color: var(--on-accent); border-radius: var(--r) var(--r) 4px var(--r); overflow-wrap: anywhere; }
-.a { margin: 0; padding: 14px 16px; background: var(--soft); border-radius: 4px var(--r) var(--r) var(--r); min-width: 0; }
+.a { margin: 0; padding: 14px 16px; background: var(--soft); border-radius: 4px var(--r) var(--r) var(--r);
+  border-left: 3px solid var(--c); min-width: 0; }
 .who { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 14px; font-weight: 600; color: var(--c, var(--accent)); }
 .who::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .tag { margin-left: auto; font-weight: 500; font-size: 12px; color: var(--muted); border: 1px solid var(--line);
@@ -51,38 +54,58 @@ h1 span { color: var(--muted); font-weight: 400; }
 .text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .src { margin: 10px 0 0; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
 .src a { color: inherit; }
-.wait { color: var(--muted); margin: 0; }
-.err { margin: 0; color: #b42318; font-size: 15px; }
+.more { margin-top: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--c); font-size: 14px; font-weight: 600; }
+.stage { margin: 0 0 10px; color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.dots { display: inline-flex; gap: 3px; }
+.dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--c); }
+.bar { height: 10px; border-radius: 6px; background: var(--line); }
+.bar + .bar { margin-top: 8px; width: 70%; }
+.err { display: grid; gap: 8px; justify-items: start; color: #b42318; font-size: 15px; }
+.err p { margin: 0; }
+.retry { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid currentColor; background: var(--bg); color: inherit; }
 
 footer { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--line);
-  padding-bottom: env(safe-area-inset-bottom); }
-form { display: flex; gap: 8px; align-items: flex-end; padding-top: 10px; padding-bottom: 10px; }
+  padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+form { display: flex; gap: 8px; align-items: flex-end; padding-top: 10px; }
 textarea { flex: 1; min-width: 0; font: inherit; color: var(--text); background: var(--soft); border: 1px solid transparent;
   border-radius: 22px; padding: 10px 16px; min-height: 44px; max-height: 160px; resize: none; }
 textarea:focus { border-color: var(--line); background: var(--bg); }
 .send { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent);
-  color: var(--on-accent); display: grid; place-items: center; cursor: pointer; }
+  color: var(--on-accent); display: grid; place-items: center; }
 .send[disabled] { opacity: .45; cursor: default; }
+.send[aria-busy="true"] { opacity: 1; }
+.send[aria-busy="true"] svg { display: none; }
+.send[aria-busy="true"]::after { content: ""; width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: no-preference) {
-  .wait::after { content: "…"; animation: dots 1s steps(2) infinite; }
-  @keyframes dots { 50% { opacity: 0; } }
+  .dots i { animation: hop 1s infinite ease-in-out; }
+  .dots i:nth-child(2) { animation-delay: .15s; }
+  .dots i:nth-child(3) { animation-delay: .3s; }
+  .bar { animation: glow 1.4s infinite ease-in-out; }
+  .pending, .in { animation: rise .45s cubic-bezier(.2, .8, .2, 1) both; }
+  .send[aria-busy="true"]::after { animation: spin .7s linear infinite; }
+  @keyframes hop { 0%, 60%, 100% { transform: none; opacity: .4; } 30% { transform: translateY(-4px); opacity: 1; } }
+  @keyframes glow { 50% { opacity: .45; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
 }
 </style>
 </head>
 <body>
-<header>
+<header id="head">
   <div class="wrap">
     <h1>Sain <span>эксперты по сну</span></h1>
     <div class="tabs" id="tabs" role="group" aria-label="Кому задать вопрос"></div>
-    <p class="hint" id="hint" aria-live="polite"></p>
   </div>
 </header>
 
 <main class="chat">
   <div class="wrap" id="log" aria-live="polite">
     <div class="empty" id="empty">
-      <p>Задайте вопрос о сне. Ответ опирается на научную статью из базы.</p>
+      <p>Задайте вопрос о сне. Каждый эксперт ответит по-своему и сошлётся на научную статью.</p>
+      <div class="cards" id="cards"></div>
+      <p>Или начните с примера:</p>
       <div class="samples" id="samples"></div>
     </div>
   </div>
@@ -91,7 +114,7 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
 <footer>
   <form class="wrap" id="form">
     <label class="sr" for="text">Вопрос</label>
-    <textarea id="text" name="text" rows="1" maxlength="1000" placeholder="Ваш вопрос" required></textarea>
+    <textarea id="text" name="text" rows="1" maxlength="1000" placeholder="Ваш вопрос" enterkeyhint="send" required></textarea>
     <button class="send" type="submit" id="send" aria-label="Отправить">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
     </button>
@@ -106,9 +129,13 @@ const SAMPLES = [
   "В спальне жарко. Это влияет на сон?",
   "Сколько мелатонина пить перед сном?",
 ];
+const STAGES = [[1500, "ищет статью"], [4000, "пишет ответ"]];
+const motion = matchMedia("(prefers-reduced-motion: no-preference)").matches;
+const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 const experts = {};
 let current = "all";
 let history = [];
+let article = "";
 
 function el(tag, cls, text) {
   const n = document.createElement(tag);
@@ -117,41 +144,72 @@ function el(tag, cls, text) {
   return n;
 }
 async function api(path, body) {
-  const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  let res;
+  try {
+    res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  } catch {
+    throw new Error("нет связи с сервером");
+  }
   const data = await res.json().catch(() => ({}));
   if (res.status === 429) throw new Error("лимит вопросов на сегодня исчерпан");
   if (!res.ok) throw new Error(data.error || `сервер ответил ${res.status}`);
   return data;
 }
 function select(id) {
-  if (id !== current) history = [];
   current = id;
   for (const b of $("tabs").children) b.setAttribute("aria-pressed", String(b.dataset.id === id));
-  $("hint").textContent = id === "all" ? "Один вопрос, три разных ответа" : (experts[id]?.tagline || "");
+}
+function pick(id) {
+  select(id);
+  $("text").focus();
 }
 async function loadExperts() {
   try {
     const { experts: list } = await api("/experts");
     list.forEach((e) => (experts[e.expert_id] = e));
     $("tabs").replaceChildren(...["all", ...list.map((e) => e.expert_id)].map((id) => {
-      const b = el("button", "tab", id === "all" ? "Все трое" : SHORT[id] || experts[id].name);
+      const b = el("button", "tab", id === "all" ? "Все" : SHORT[id] || experts[id].name);
       b.type = "button";
       b.dataset.id = id;
       b.onclick = () => select(id);
       return b;
     }));
+    $("cards").replaceChildren(...list.map((e) => {
+      const b = el("button", "card", e.tagline);
+      b.type = "button";
+      b.style.setProperty("--c", `var(--c-${e.expert_id})`);
+      b.prepend(el("span", "who", e.name));
+      b.onclick = () => pick(e.expert_id);
+      return b;
+    }));
     select("all");
   } catch (err) {
-    $("hint").textContent = `Эксперты не загрузились: ${err.message}. Обновите страницу.`;
+    $("cards").replaceChildren(el("p", "err", `Эксперты не загрузились: ${err.message}. Обновите страницу.`));
   }
 }
-function answer(a, data) {
+function card(id) {
   const box = el("article", "a");
-  box.style.setProperty("--c", `var(--c-${a.expert_id})`);
-  const who = el("div", "who", experts[a.expert_id]?.name || a.expert_id);
-  if (data.refused) who.append(el("span", "tag", "вне компетенции"));
+  box.style.setProperty("--c", `var(--c-${id})`);
+  box.append(el("div", "who", experts[id]?.name || id));
+  return box;
+}
+function pending(id) {
+  const box = card(id);
+  box.classList.add("pending");
+  const stage = el("p", "stage", "читает вопрос");
+  const dots = el("span", "dots");
+  dots.append(el("i"), el("i"), el("i"));
+  stage.append(dots);
+  box.append(stage, el("div", "bar"), el("div", "bar"));
+  return box;
+}
+function answer(a, data, asked) {
+  const box = card(a.expert_id);
+  if (motion) box.classList.add("in");
+  if (data.refused) box.firstChild.append(el("span", "tag", "вне компетенции"));
   const c = data.citations[0] || {};
-  const src = el("p", "src", `Источник: ${c.article_title || c.article_id}${c.year ? `, ${c.year}` : ""}`);
+  const where = [c.article_title || c.article_id, c.section_title && `раздел «${c.section_title}»`, c.year].filter(Boolean);
+  const src = el("p", "src", `Источник: ${where.join(", ")}`);
   if (c.doi) {
     const link = el("a", "", "DOI");
     link.href = `https://doi.org/${c.doi}`;
@@ -159,30 +217,60 @@ function answer(a, data) {
     link.rel = "noopener";
     src.append(" · ", link);
   }
-  box.append(who, el("p", "text", a.text), src);
+  box.append(el("p", "text", a.text), src);
+  if (asked === "all") {
+    const more = el("button", "more", "Спросить дальше");
+    more.type = "button";
+    more.setAttribute("aria-label", `Продолжить разговор: ${experts[a.expert_id]?.name || a.expert_id}`);
+    more.onclick = () => pick(a.expert_id);
+    box.append(more);
+  }
   return box;
+}
+function busy(on) {
+  $("send").disabled = on;
+  $("send").setAttribute("aria-busy", String(on));
 }
 async function ask(text) {
   $("empty")?.remove();
-  const log = $("log");
   const asked = current;
-  log.append(el("p", "q", text));
-  const wait = el("p", "wait", asked === "all" ? "Эксперты пишут" : "Эксперт пишет");
-  log.append(wait);
-  wait.scrollIntoView({ block: "end" });
-  $("send").disabled = true;
+  const q = el("p", "q", text);
+  const slots = Object.fromEntries((asked === "all" ? Object.keys(experts) : [asked]).map((id) => [id, pending(id)]));
+  $("log").append(q, ...Object.values(slots));
+  q.scrollIntoView({ block: "start", behavior: motion ? "smooth" : "auto" });
+  busy(true);
+  const timers = STAGES.map(([ms, label]) => setTimeout(() => {
+    for (const s of Object.values(slots)) s.querySelector(".stage").firstChild.textContent = label;
+  }, ms));
   try {
-    const data = await api("/ask", { expert_id: asked, text, history: asked === "all" ? [] : history });
+    const data = await api("/ask", { expert_id: asked, text, history, article });
     const list = data.answers || [{ expert_id: data.expert_id, text: data.text }];
-    wait.replaceWith(...list.map((a) => answer(a, data)));
-    if (asked !== "all") history.push({ role: "user", text }, { role: "assistant", text: list[0].text });
-    $("text").value = "";
-    grow();
+    history.push({ role: "user", text }, { role: "assistant", text: list[0].text });
+    article = data.citations[0]?.article_id || "";
+    for (const [i, a] of list.entries()) {
+      if (i && motion) await sleep(400);
+      slots[a.expert_id].replaceWith(answer(a, data, asked));
+    }
   } catch (err) {
-    wait.replaceWith(el("p", "err", `Ответа нет: ${err.message}. Вопрос остался в поле.`));
+    Object.values(slots).forEach((s) => s.remove());
+    const box = el("div", "err");
+    const retry = el("button", "retry", "Повторить");
+    retry.type = "button";
+    retry.onclick = () => {
+      if ($("send").disabled) return;
+      if ($("text").value === text) $("text").value = "";
+      grow();
+      q.remove();
+      box.remove();
+      ask(text);
+    };
+    box.append(el("p", "", `Ответа нет: ${err.message}. Вопрос вернул в поле.`), retry);
+    q.after(box);
+    if (!$("text").value) $("text").value = text;
+    grow();
   } finally {
-    $("send").disabled = false;
-    log.lastElementChild.scrollIntoView({ block: "nearest" });
+    timers.forEach(clearTimeout);
+    busy(false);
   }
 }
 function grow() {
@@ -193,8 +281,11 @@ function grow() {
 $("form").addEventListener("submit", (e) => {
   e.preventDefault();
   const text = $("text").value.trim();
+  if ($("send").disabled) return;
   if (!text) { $("text").focus(); return; }
-  if (!$("send").disabled) ask(text);
+  $("text").value = "";
+  grow();
+  ask(text);
 });
 $("text").addEventListener("input", grow);
 $("text").addEventListener("keydown", (e) => {
@@ -206,6 +297,9 @@ for (const q of SAMPLES) {
   b.onclick = () => { $("text").value = q; grow(); $("text").focus(); };
   $("samples").append(b);
 }
+new ResizeObserver(() => {
+  document.documentElement.style.scrollPaddingTop = `${$("head").offsetHeight + 12}px`;
+}).observe($("head"));
 loadExperts();
 </script>
 </body>
