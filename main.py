@@ -177,7 +177,6 @@ class Handler(BaseHTTPRequestHandler):
         """expert_id — один эксперт (ответ как раньше) или "all": все три одним вызовом."""
         text = str(data.get("text") or "").strip()[:1000]
         expert_id = str(data.get("expert_id") or "")
-        user_id = ""  # клиент без входа: чужой профиль из набора в промпт не берём
         fake = bool(data.get("fake"))
         history = [
             {"role": str(m.get("role", "user")), "at": "", "text": str(m.get("text", ""))[:400]}
@@ -190,6 +189,8 @@ class Handler(BaseHTTPRequestHandler):
         except DataError as e:
             self.send_json(503, {"error": str(e)})
             return
+        users = ds.raw.get("users") or []
+        user_id = users[0]["user_id"] if len(users) == 1 else ""
         experts = list(ds.experts) if expert_id == "all" else [expert_id]
         if not text or not all(e in ds.experts for e in experts):
             self.send_json(400, {"error": "нужны text и expert_id из /experts или all"})
