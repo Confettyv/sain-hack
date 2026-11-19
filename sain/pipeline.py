@@ -6,6 +6,7 @@
 
 import json
 import logging
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -62,10 +63,8 @@ def _history(ds: Dataset, g: Group) -> list[dict[str, str]]:
     return (ds.history(g.user_id, g.at) + g.history)[-6:]
 
 
-def classify(chat: Chat, ds: Dataset, groups: list[Group]) -> dict[str, Decision]:
-    system = prompts.CLASSIFY.replace("{catalog}", search.catalog(ds))
-    if any(g.last_article in ds.articles for g in groups):
-        system += prompts.FOLLOW_UP
+def classify(chat: Chat, ds: Dataset, groups: list[Group], extra: str = "") -> dict[str, Decision]:
+    system = prompts.CLASSIFY.replace("{catalog}", search.catalog(ds)) + extra
     articles = list(ds.articles)
     result: dict[str, Decision] = {}
     for start in range(0, len(groups), BATCH):
@@ -102,11 +101,11 @@ def classify(chat: Chat, ds: Dataset, groups: list[Group]) -> dict[str, Decision
     return result
 
 
-def write(chat: Chat, ds: Dataset, g: Group, d: Decision) -> dict[str, str]:
+def write(chat: Chat, ds: Dataset, g: Group, d: Decision, extra: str = "") -> dict[str, str]:
     d.article, d.section = search.safe_section(ds, d.article, d.keywords)
     refused = d.kind == "attack"
     experts = g.experts
-    system = prompts.WRITE.replace("{cards}", "\n\n".join(card(ds, e) for e in experts))
+    system = prompts.WRITE.replace("{cards}", "\n\n".join(card(ds, e) for e in experts)) + extra
     section = ds.sections[d.article][d.section]
     task: dict[str, Any] = {
         "experts": experts,
@@ -137,7 +136,7 @@ def write(chat: Chat, ds: Dataset, g: Group, d: Decision) -> dict[str, str]:
         bad: list[str] = []
         notes: list[str] = []
         for e in todo:
-            text = str(answers.get(e) or "").strip()
+            text = re.sub(r"[\s{}]+$", "", str(answers.get(e) or "")).strip()
             problems = guard.issues(text, refused)
             if problems:
                 bad.append(e)
@@ -195,8 +194,9 @@ def ask_live(
 ) -> dict[str, Any]:
     """Вопрос из клиента: тот же путь, что у /run; несколько экспертов — один вызов на всех."""
     g = Group("live", text, user_id, "", [(e, e) for e in expert_ids], history, last_article)
-    d = classify(chat, ds, [g])["live"]
-    texts = write(chat, ds, g, d)
+    d = classify(chat, ds, [g], prompts.LIVE_CLASSIFY)["live"]
+    texts = write(chat, ds, g, d, prompts.LIVE_WRITE)
+    offtopic = d.topic == "offtopic" and d.kind == "normal"
     article = ds.articles[d.article]
     section = ds.sections[d.article][d.section]
     citation = {
@@ -209,7 +209,7 @@ def ask_live(
     }
     return {
         "refused": d.kind == "attack",
-        "citations": [citation],
+        "citations": [] if offtopic else [citation],
         "answers": [{"expert_id": e, "text": texts[e]} for e in expert_ids],
         "degraded": any(texts[e] == fallback(d.kind, e) for e in expert_ids),
     }

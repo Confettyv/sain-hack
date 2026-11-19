@@ -154,6 +154,23 @@ class RobustnessTest(unittest.TestCase):
         self.assertEqual([it.get("last_article") for it in Spy.items], ["art_20", None])
 
 
+class Offtopic(FakeChat):
+    def ask(self, system: str, user: str, *, max_tokens: int, tag: str) -> Reply:
+        if tag == "classify":
+            items = [{"n": 1, "kind": "normal", "article": "art_20", "topic": "offtopic"}]
+            return Reply(json.dumps({"items": items}), 0, 0, "stop")
+        return Reply(json.dumps({"answers": {"biohacker": "Я отвечаю только про сон.}}"}}), 0, 0, "stop")
+
+
+class LiveTest(unittest.TestCase):
+    def test_offtopic_without_citation_and_braces(self) -> None:
+        from sain.data import Dataset
+        from sain.pipeline import ask_live
+
+        got = ask_live(Offtopic(), Dataset.from_payload(dataset()), ["biohacker"], "Сколько живёт кот?", "", [])
+        self.assertEqual(got["citations"], [])
+        self.assertEqual(got["answers"][0]["text"], "Я отвечаю только про сон.")
+
 class SearchTest(unittest.TestCase):
     def test_skip_word_bounds(self) -> None:
         from sain.search import SKIP

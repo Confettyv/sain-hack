@@ -26,14 +26,26 @@ button { font: inherit; cursor: pointer; }
 
 header { position: sticky; top: 0; z-index: 2; background: rgba(255,255,255,.94);
   backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-header .wrap { padding-top: 10px; padding-bottom: 10px; }
-h1 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
-h1 span { color: var(--muted); font-weight: 400; }
-.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
-.tab { flex: 1 1 auto; font-size: 14px; min-height: 44px; padding: 0 8px; border-radius: 999px;
-  border: 1px solid var(--line); background: var(--bg); color: var(--text); }
-@media (max-width: 380px) { .tabs { gap: 4px; } .tab { font-size: 13px; padding: 0 4px; } }
-.tab[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: #fff; }
+header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; padding-bottom: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 20px; font-weight: 750; letter-spacing: -.02em; line-height: 1.1; }
+.brand small { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--muted); }
+.logo { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(135deg, #6366f1, #4338ca 60%, #312e81); box-shadow: 0 4px 12px rgba(79, 70, 229, .3); }
+.picker { position: relative; }
+.pick { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 14px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 15px; font-weight: 600; white-space: nowrap; }
+.pick svg { color: var(--muted); }
+@media (max-width: 374px) { .brand small { display: none; } }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+[data-id="all"] .dot, [data-id="all"] .who::before { background: var(--c-clinician); margin-right: 20px;
+  box-shadow: 10px 0 var(--c-biohacker), 20px 0 var(--c-nutritionist); }
+.menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 3; width: min(340px, calc(100vw - 32px));
+  display: grid; gap: 2px; padding: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(24, 24, 27, .16); transform-origin: top right; }
+.menu[hidden] { display: none; }
+.opt { display: grid; gap: 2px; text-align: left; padding: 10px 12px; border: 0; border-radius: 12px; background: none; color: var(--muted); font-size: 13px; }
+.opt .who { margin: 0; font-size: 15px; }
+.opt[aria-pressed="true"] { background: var(--soft); }
 
 .chat { flex: 1; }
 .chat .wrap { display: grid; gap: 16px; padding-top: 20px; padding-bottom: 20px; }
@@ -76,7 +88,8 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
   color: var(--on-accent); display: grid; place-items: center; }
 .send[disabled] { opacity: .45; cursor: default; }
 @media (hover: hover) {
-  .tab:not([aria-pressed="true"]):hover, .sample:hover { background: var(--line); }
+  .sample:hover { background: var(--line); }
+  .pick:hover, .opt:hover { background: var(--soft); }
   .card:hover { box-shadow: 0 6px 18px rgba(24, 24, 27, .08); }
   .send:not([disabled]):hover { background: #4338ca; }
   .retry:hover { background: #fef3f2; }
@@ -87,6 +100,10 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
     border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), opacity var(--t) var(--ease), transform var(--t) var(--ease); }
   button:not([disabled]):active { transform: scale(.96); transition-duration: .08s; }
   .card:not(:active):hover { transform: translateY(-2px); }
+  .pick svg { transition: transform var(--t) var(--ease); }
+  .pick[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .menu:not([hidden]) { animation: drop .18s var(--ease) both; }
+  @keyframes drop { from { opacity: 0; transform: translateY(-6px) scale(.97); } }
   .dots i { animation: hop 1s infinite ease-in-out; }
   .dots i:nth-child(2) { animation-delay: .15s; }
   .dots i:nth-child(3) { animation-delay: .3s; }
@@ -106,8 +123,17 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
 <body>
 <header id="head">
   <div class="wrap">
-    <h1>Sain <span>эксперты по сну</span></h1>
-    <div class="tabs" id="tabs" role="group" aria-label="Кому задать вопрос"></div>
+    <h1 class="brand">
+      <span class="logo"><svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><path d="M20 4a12 12 0 1 0 8 20A10 10 0 0 1 20 4z" fill="currentColor"/></svg></span>
+      <span>Sain<small>эксперты по сну</small></span>
+    </h1>
+    <div class="picker" id="picker">
+      <button class="pick" type="button" id="pick" aria-expanded="false" aria-controls="menu" disabled>
+        <span class="sr">Кому задать вопрос: </span><span class="dot"></span><span id="pick-name">Все трое</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="menu" id="menu" hidden></div>
+    </div>
   </div>
 </header>
 
@@ -168,10 +194,20 @@ async function api(path, body) {
   if (!res.ok) throw Object.assign(new Error(data.error || "сервер временно недоступен"), { status: res.status });
   return data;
 }
+function name(id) {
+  return id === "all" ? "Все трое" : experts[id]?.name || id;
+}
+function menu(open) {
+  $("pick").setAttribute("aria-expanded", String(open));
+  $("menu").hidden = !open;
+}
 function select(id) {
   current = id;
-  for (const b of $("tabs").children) b.setAttribute("aria-pressed", String(b.dataset.id === id));
-  $("text").placeholder = `Вопрос ${TO[id] || experts[id]?.name || ""}`;
+  for (const b of $("menu").children) b.setAttribute("aria-pressed", String(b.dataset.id === id));
+  $("pick").dataset.id = id;
+  $("pick").style.setProperty("--c", `var(--c-${id})`);
+  $("pick-name").textContent = SHORT[id] || name(id);
+  $("text").placeholder = `Вопрос ${TO[id] || name(id)}`;
 }
 function pick(id) {
   select(id);
@@ -181,13 +217,20 @@ async function loadExperts() {
   try {
     const { experts: list } = await api("/experts");
     list.forEach((e) => (experts[e.expert_id] = e));
-    $("tabs").replaceChildren(...["all", ...list.map((e) => e.expert_id)].map((id) => {
-      const b = el("button", "tab", id === "all" ? "Все" : SHORT[id] || experts[id].name);
+    $("menu").replaceChildren(...["all", ...list.map((e) => e.expert_id)].map((id) => {
+      const b = el("button", "opt", id === "all" ? "Один вопрос, три разных ответа" : experts[id].tagline);
       b.type = "button";
       b.dataset.id = id;
-      b.onclick = () => select(id);
+      b.style.setProperty("--c", `var(--c-${id})`);
+      b.prepend(el("span", "who", name(id)));
+      b.onclick = () => {
+        select(id);
+        menu(false);
+        $("pick").focus();
+      };
       return b;
     }));
+    $("pick").disabled = false;
     $("cards").replaceChildren(...list.map((e) => {
       const b = el("button", "card", e.tagline);
       b.type = "button";
@@ -205,7 +248,7 @@ async function loadExperts() {
 function card(id) {
   const box = el("article", "a");
   box.style.setProperty("--c", `var(--c-${id})`);
-  box.append(el("div", "who", experts[id]?.name || id));
+  box.append(el("div", "who", name(id)));
   return box;
 }
 function pending(id) {
@@ -224,7 +267,19 @@ function answer(a, data, asked) {
   if (motion) box.classList.add("in");
   if (data.refused) box.firstChild.append(el("span", "tag", "вне компетенции"));
   else if (data.demo || data.degraded) box.firstChild.append(el("span", "tag", "упрощённый ответ"));
-  const c = data.citations[0] || {};
+  box.append(el("p", "text", a.text));
+  const c = data.citations[0];
+  if (c) box.append(source(c));
+  if (asked === "all") {
+    const more = el("button", "more", "Спросить дальше");
+    more.type = "button";
+    more.setAttribute("aria-label", `Продолжить разговор: ${name(a.expert_id)}`);
+    more.onclick = () => pick(a.expert_id);
+    box.append(more);
+  }
+  return box;
+}
+function source(c) {
   const where = [c.article_title || c.article_id, c.section_title && `раздел «${c.section_title}»`, c.year].filter(Boolean);
   const src = el("p", "src", `Источник: ${where.join(", ")}`);
   if (c.doi) {
@@ -234,15 +289,7 @@ function answer(a, data, asked) {
     link.rel = "noopener";
     src.append(" · ", link);
   }
-  box.append(el("p", "text", a.text), src);
-  if (asked === "all") {
-    const more = el("button", "more", "Спросить дальше");
-    more.type = "button";
-    more.setAttribute("aria-label", `Продолжить разговор: ${experts[a.expert_id]?.name || a.expert_id}`);
-    more.onclick = () => pick(a.expert_id);
-    box.append(more);
-  }
-  return box;
+  return src;
 }
 function busy(on) {
   $("send").disabled = on;
@@ -320,6 +367,16 @@ for (const q of SAMPLES) {
   b.onclick = () => { $("text").value = q; grow(); $("text").focus(); };
   $("samples").append(b);
 }
+$("pick").onclick = () => menu($("menu").hidden);
+document.addEventListener("click", (e) => {
+  if (!$("picker").contains(e.target)) menu(false);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("menu").hidden) {
+    menu(false);
+    $("pick").focus();
+  }
+});
 new ResizeObserver(() => {
   document.documentElement.style.scrollPaddingTop = `${$("head").offsetHeight + 12}px`;
 }).observe($("head"));
