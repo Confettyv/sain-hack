@@ -31,6 +31,7 @@ h1 span { color: var(--muted); font-weight: 400; }
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 .tab { flex: 1 1 auto; font-size: 14px; min-height: 44px; padding: 0 8px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+@media (max-width: 380px) { .tabs { gap: 4px; } .tab { font-size: 13px; padding: 0 4px; } }
 .tab[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: #fff; }
 
 .chat { flex: 1; }
@@ -53,7 +54,7 @@ h1 span { color: var(--muted); font-weight: 400; }
   background: var(--bg); border-radius: 999px; padding: 1px 8px; }
 .text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .src { margin: 10px 0 0; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
-.src a { color: inherit; }
+.src a { color: inherit; display: inline-block; padding: 12px 6px; margin: -12px -6px; }
 .more { margin-top: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--c); font-size: 14px; font-weight: 600; }
 .stage { margin: 0 0 10px; color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 6px; }
 .dots { display: inline-flex; gap: 3px; }
@@ -73,10 +74,6 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
 .send { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent);
   color: var(--on-accent); display: grid; place-items: center; }
 .send[disabled] { opacity: .45; cursor: default; }
-.send[aria-busy="true"] { opacity: 1; }
-.send[aria-busy="true"] svg { display: none; }
-.send[aria-busy="true"]::after { content: ""; width: 18px; height: 18px; border-radius: 50%;
-  border: 2px solid currentColor; border-right-color: transparent; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: no-preference) {
   .dots i { animation: hop 1s infinite ease-in-out; }
@@ -84,7 +81,10 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
   .dots i:nth-child(3) { animation-delay: .3s; }
   .bar { animation: glow 1.4s infinite ease-in-out; }
   .pending, .in { animation: rise .45s cubic-bezier(.2, .8, .2, 1) both; }
-  .send[aria-busy="true"]::after { animation: spin .7s linear infinite; }
+  .send[aria-busy="true"] { opacity: 1; }
+  .send[aria-busy="true"] svg { display: none; }
+  .send[aria-busy="true"]::after { content: ""; width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
   @keyframes hop { 0%, 60%, 100% { transform: none; opacity: .4; } 30% { transform: translateY(-4px); opacity: 1; } }
   @keyframes glow { 50% { opacity: .45; } }
   @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.98); } }
@@ -103,7 +103,7 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
 <main class="chat">
   <div class="wrap" id="log" aria-live="polite">
     <div class="empty" id="empty">
-      <p>Задайте вопрос о сне. Каждый эксперт ответит по-своему и сошлётся на научную статью.</p>
+      <p>Задайте вопрос о сне. Каждый эксперт ответит по-своему и сошлётся на научную статью. Эксперты вымышленные, это не медицинская консультация.</p>
       <div class="cards" id="cards"></div>
       <p>Или начните с примера:</p>
       <div class="samples" id="samples"></div>
@@ -115,7 +115,7 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
   <form class="wrap" id="form">
     <label class="sr" for="text">Вопрос</label>
     <textarea id="text" name="text" rows="1" maxlength="1000" placeholder="Ваш вопрос" enterkeyhint="send" required></textarea>
-    <button class="send" type="submit" id="send" aria-label="Отправить">
+    <button class="send" type="submit" id="send" aria-label="Отправить" disabled>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
     </button>
   </form>
@@ -124,6 +124,7 @@ textarea:focus { border-color: var(--line); background: var(--bg); }
 <script>
 const $ = (id) => document.getElementById(id);
 const SHORT = { clinician: "Клиницист", biohacker: "Биохакер", nutritionist: "Нутрициолог" };
+const TO = { all: "всем троим", clinician: "клиницисту", biohacker: "биохакеру", nutritionist: "нутрициологу" };
 const SAMPLES = [
   "Пью кофе в пять вечера, это мешает уснуть?",
   "В спальне жарко. Это влияет на сон?",
@@ -136,6 +137,7 @@ const experts = {};
 let current = "all";
 let history = [];
 let article = "";
+let failed = [];
 
 function el(tag, cls, text) {
   const n = document.createElement(tag);
@@ -146,18 +148,19 @@ function el(tag, cls, text) {
 async function api(path, body) {
   let res;
   try {
-    res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
-  } catch {
-    throw new Error("нет связи с сервером");
+    const init = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
+    res = await fetch(path, { ...init, signal: AbortSignal.timeout(90000) });
+  } catch (err) {
+    throw new Error(err.name === "TimeoutError" ? "сервер не ответил вовремя" : "нет связи с сервером");
   }
   const data = await res.json().catch(() => ({}));
-  if (res.status === 429) throw new Error("лимит вопросов на сегодня исчерпан");
-  if (!res.ok) throw new Error(data.error || `сервер ответил ${res.status}`);
+  if (!res.ok) throw Object.assign(new Error(data.error || "сервер временно недоступен"), { status: res.status });
   return data;
 }
 function select(id) {
   current = id;
   for (const b of $("tabs").children) b.setAttribute("aria-pressed", String(b.dataset.id === id));
+  $("text").placeholder = `Вопрос ${TO[id] || experts[id]?.name || ""}`;
 }
 function pick(id) {
   select(id);
@@ -183,6 +186,7 @@ async function loadExperts() {
       return b;
     }));
     select("all");
+    $("send").disabled = false;
   } catch (err) {
     $("cards").replaceChildren(el("p", "err", `Эксперты не загрузились: ${err.message}. Обновите страницу.`));
   }
@@ -196,6 +200,7 @@ function card(id) {
 function pending(id) {
   const box = card(id);
   box.classList.add("pending");
+  box.setAttribute("aria-hidden", "true");
   const stage = el("p", "stage", "читает вопрос");
   const dots = el("span", "dots");
   dots.append(el("i"), el("i"), el("i"));
@@ -207,6 +212,7 @@ function answer(a, data, asked) {
   const box = card(a.expert_id);
   if (motion) box.classList.add("in");
   if (data.refused) box.firstChild.append(el("span", "tag", "вне компетенции"));
+  else if (data.demo || data.degraded) box.firstChild.append(el("span", "tag", "упрощённый ответ"));
   const c = data.citations[0] || {};
   const where = [c.article_title || c.article_id, c.section_title && `раздел «${c.section_title}»`, c.year].filter(Boolean);
   const src = el("p", "src", `Источник: ${where.join(", ")}`);
@@ -233,6 +239,8 @@ function busy(on) {
 }
 async function ask(text) {
   $("empty")?.remove();
+  failed.forEach((n) => n.remove());
+  failed = [];
   const asked = current;
   const q = el("p", "q", text);
   const slots = Object.fromEntries((asked === "all" ? Object.keys(experts) : [asked]).map((id) => [id, pending(id)]));
@@ -243,9 +251,14 @@ async function ask(text) {
     for (const s of Object.values(slots)) s.querySelector(".stage").firstChild.textContent = label;
   }, ms));
   try {
-    const data = await api("/ask", { expert_id: asked, text, history, article });
+    const sent = history.map((m) => (m.answers ? { role: "assistant", text: m.answers[asked] || Object.values(m.answers)[0] } : m));
+    const body = { expert_id: asked, text, history: sent, article };
+    const data = await api("/ask", body).catch(async (err) => {
+      if (err.status !== 429) throw err;
+      return { ...(await api("/ask", { ...body, fake: true })), demo: true };
+    });
     const list = data.answers || [{ expert_id: data.expert_id, text: data.text }];
-    history.push({ role: "user", text }, { role: "assistant", text: list[0].text });
+    history.push({ role: "user", text }, { answers: Object.fromEntries(list.map((a) => [a.expert_id, a.text])) });
     article = data.citations[0]?.article_id || "";
     for (const [i, a] of list.entries()) {
       if (i && motion) await sleep(400);
@@ -260,10 +273,9 @@ async function ask(text) {
       if ($("send").disabled) return;
       if ($("text").value === text) $("text").value = "";
       grow();
-      q.remove();
-      box.remove();
       ask(text);
     };
+    failed = [q, box];
     box.append(el("p", "", `Ответа нет: ${err.message}. Вопрос вернул в поле.`), retry);
     q.after(box);
     if (!$("text").value) $("text").value = text;
