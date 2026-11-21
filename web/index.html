@@ -50,9 +50,9 @@ button { font: inherit; letter-spacing: inherit; cursor: pointer; touch-action: 
 .wrap { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 16px; }
 
 header { position: sticky; top: 0; z-index: 2; background: var(--bg); }
-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
+header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; padding-bottom: 12px; }
 .brand { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 17px; font-weight: 600; letter-spacing: .04em; line-height: 1.15; }
-.brand small { display: block; font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--muted); }
+.brand small { display: block; white-space: nowrap; font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--muted); }
 .logo { flex: none; display: block; border-radius: 9px; }
 .picker { position: relative; }
 .tools { display: flex; align-items: center; gap: 8px; }
@@ -63,7 +63,7 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
 .pick { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 16px; border-radius: 999px;
   border: 0; box-shadow: var(--lift); background: var(--card); color: var(--text); font-size: 15px; font-weight: 500; white-space: nowrap; }
 .pick svg { color: var(--muted); }
-@media (max-width: 374px) { .brand small { display: none; } }
+@media (max-width: 389px) { .brand small { display: none; } }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
 [data-id="all"] .dot, [data-id="all"] .who::before { background: var(--c-clinician); margin-right: 20px;
   box-shadow: 10px 0 var(--c-biohacker), 20px 0 var(--c-nutritionist); }
