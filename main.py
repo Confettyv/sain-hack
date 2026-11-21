@@ -41,7 +41,7 @@ class State:
 
 
 def dataset() -> Dataset:
-    """Набор для клиента: последний из /run, иначе dev по токену команды."""
+    """Набор для клиента: последний из /run, иначе DATASET_CODE (по умолчанию dev) по токену команды."""
     if State.dataset is not None:
         return State.dataset
     # сеть под отдельным замком: загрузка не держит /stats, лимиты и кеш
@@ -50,7 +50,7 @@ def dataset() -> Dataset:
             token = os.environ.get("HACK_TEAM_TOKEN", "")
             if not token:
                 raise DataError("нет HACK_TEAM_TOKEN")
-            ds = Dataset.from_payload(fetch(4, DEV_CODE, "Bearer " + token))
+            ds = Dataset.from_payload(fetch(4, os.environ.get("DATASET_CODE", DEV_CODE), "Bearer " + token))
             with State.lock:
                 State.dataset = ds
         return State.dataset

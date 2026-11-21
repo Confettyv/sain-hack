@@ -40,5 +40,24 @@ class AskUser(unittest.TestCase):
         self.assertEqual(self.asked_user([{"user_id": "u1"}, {"user_id": "u2"}]), "")
 
 
+class DatasetCode(unittest.TestCase):
+    def tearDown(self) -> None:
+        main.State.dataset = None
+
+    def loaded_code(self, env: dict[str, str]) -> str:
+        main.State.dataset = None
+        with mock.patch.dict(main.os.environ, env), mock.patch.object(main, "fetch", return_value={"dataset": dataset()}) as f:
+            main.dataset()
+        return f.call_args.args[1]
+
+    def test_final_code_from_env(self) -> None:
+        self.assertEqual(self.loaded_code({"HACK_TEAM_TOKEN": "t", "DATASET_CODE": "case4-final"}), "case4-final")
+
+    def test_dev_by_default(self) -> None:
+        with mock.patch.dict(main.os.environ, {}, clear=False):
+            main.os.environ.pop("DATASET_CODE", None)
+            self.assertEqual(self.loaded_code({"HACK_TEAM_TOKEN": "t"}), main.DEV_CODE)
+
+
 if __name__ == "__main__":
     unittest.main()

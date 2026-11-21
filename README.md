@@ -25,7 +25,7 @@ LLM_FAKE=1 PORT=8000 HACK_TEAM_TOKEN=... ./.venv/bin/python main.py
 ```
 
 На стенде: `sh start.sh`, зависимостей нет (`requirements.txt` пуст, только stdlib).
-Переменные стенда: `PORT`, `HACK_API_URL`, `HACK_TEAM_TOKEN`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`.
+Переменные стенда: `PORT`, `HACK_API_URL`, `HACK_TEAM_TOKEN`, `DATASET_CODE` (код final-набора, без него dev), `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`.
 Свои: `LLM_FAKE`, `LLM_REASONING` (low), `TOKEN_CAP` (200000), `ASK_LIMIT` (60 в час), `ASK_BUDGET` (40000 в сутки; в день финала 150000: /run идёт на одного пользователя, остальное для жюри).
 
 Клиент: открыть в браузере https://team01.hack.be-healthy.tech/ — бэкенд сам отдаёт страницу `web/index.html`
