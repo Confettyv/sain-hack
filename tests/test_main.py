@@ -57,19 +57,26 @@ class DatasetCode(unittest.TestCase):
     def tearDown(self) -> None:
         main.State.dataset = None
 
-    def loaded_code(self, env: dict[str, str]) -> str:
+    def loaded_codes(self, env: dict[str, str], fails: tuple[str, ...] = ()) -> list[str]:
         main.State.dataset = None
-        with mock.patch.dict(main.os.environ, env), mock.patch.object(main, "fetch", return_value={"dataset": dataset()}) as f:
+
+        def answer(case: int, code: str, auth: str) -> dict:
+            if code in fails:
+                raise main.DataError("HTTP 403")
+            return {"dataset": dataset()}
+
+        with mock.patch.dict(main.os.environ, env, clear=True), mock.patch.object(main, "fetch", side_effect=answer) as f:
             main.dataset()
-        return f.call_args.args[1]
+        return [c.args[1] for c in f.call_args_list]
 
-    def test_final_code_from_env(self) -> None:
-        self.assertEqual(self.loaded_code({"HACK_TEAM_TOKEN": "t", "DATASET_CODE": "case4-final"}), "case4-final")
+    def test_code_from_env(self) -> None:
+        self.assertEqual(self.loaded_codes({"HACK_TEAM_TOKEN": "t", "DATASET_CODE": "case4-x"}), ["case4-x"])
 
-    def test_dev_by_default(self) -> None:
-        with mock.patch.dict(main.os.environ, {}, clear=False):
-            main.os.environ.pop("DATASET_CODE", None)
-            self.assertEqual(self.loaded_code({"HACK_TEAM_TOKEN": "t"}), main.DEV_CODE)
+    def test_final_by_default(self) -> None:
+        self.assertEqual(self.loaded_codes({"HACK_TEAM_TOKEN": "t"}), [main.FINAL_CODE])
+
+    def test_dev_when_final_closed(self) -> None:
+        self.assertEqual(self.loaded_codes({"HACK_TEAM_TOKEN": "t"}, (main.FINAL_CODE,)), [main.FINAL_CODE, main.DEV_CODE])
 
 
 if __name__ == "__main__":

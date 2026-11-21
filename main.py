@@ -21,6 +21,7 @@ from sain.pipeline import answer, ask_live
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("sain")
+FINAL_CODE = "case4-final-v1"
 
 # Квота модели общая на команду (300k в день), и /run важнее: у клиента свой потолок.
 # На стенде env не наш, поэтому значения по умолчанию рассчитаны на показ жюри.
@@ -41,7 +42,7 @@ class State:
 
 
 def dataset() -> Dataset:
-    """Набор для клиента: последний из /run, иначе DATASET_CODE (по умолчанию dev) по токену команды."""
+    """Набор для клиента: последний из /run, иначе DATASET_CODE (по умолчанию final, закрыт — dev) по токену команды."""
     if State.dataset is not None:
         return State.dataset
     # сеть под отдельным замком: загрузка не держит /stats, лимиты и кеш
@@ -50,7 +51,15 @@ def dataset() -> Dataset:
             token = os.environ.get("HACK_TEAM_TOKEN", "")
             if not token:
                 raise DataError("нет HACK_TEAM_TOKEN")
-            ds = Dataset.from_payload(fetch(4, os.environ.get("DATASET_CODE", DEV_CODE), "Bearer " + token))
+            code = os.environ.get("DATASET_CODE", FINAL_CODE)
+            try:
+                payload = fetch(4, code, "Bearer " + token)
+            except DataError as e:
+                if code == DEV_CODE:
+                    raise
+                log.warning("набор %s недоступен (%s), беру dev", code, e)
+                payload = fetch(4, DEV_CODE, "Bearer " + token)
+            ds = Dataset.from_payload(payload)
             with State.lock:
                 State.dataset = ds
         return State.dataset
