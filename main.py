@@ -110,6 +110,13 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "no-cache")
             self.end_headers()
             self.wfile.write(raw)
+        elif path == "/og.jpg":
+            raw = PAGE.with_name("og.jpg").read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "image/jpeg")
+            self.send_header("Content-Length", str(len(raw)))
+            self.end_headers()
+            self.wfile.write(raw)
         elif path in ("/", "/health"):
             self.send_json(200, {"ok": True, "team": os.environ.get("TEAM", ""), "case": 4})
         elif path == "/experts":

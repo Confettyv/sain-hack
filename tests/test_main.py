@@ -40,6 +40,19 @@ class AskUser(unittest.TestCase):
         self.assertEqual(self.asked_user([{"user_id": "u1"}, {"user_id": "u2"}]), "")
 
 
+class Preview(unittest.TestCase):
+    def test_og_image_served(self) -> None:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), main.Handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        try:
+            with urllib.request.urlopen(f"http://127.0.0.1:{server.server_port}/og.jpg", timeout=5) as resp:
+                self.assertEqual(resp.headers["Content-Type"], "image/jpeg")
+                self.assertGreater(len(resp.read()), 1000)
+        finally:
+            server.shutdown()
+            server.server_close()
+
+
 class DatasetCode(unittest.TestCase):
     def tearDown(self) -> None:
         main.State.dataset = None

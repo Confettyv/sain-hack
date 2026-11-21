@@ -8,6 +8,7 @@
 <meta name="description" content="Вопрос о сне трём экспертам: ответ в стиле эксперта со ссылкой на научную статью.">
 <meta name="robots" content="noindex">
 <meta property="og:title" content="SAIN · эксперты по сну">
+<meta property="og:image" content="https://team01.hack.be-healthy.tech/og.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' rx='58' fill='%230a0a0a'/%3E%3Cg fill='%23aedf0c'%3E%3Cg id='s'%3E%3Cellipse cx='78' cy='91' rx='21' ry='15'/%3E%3Cellipse cx='62' cy='129' rx='21' ry='17' transform='rotate(-25 62 129)'/%3E%3Cellipse cx='81' cy='164' rx='21' ry='15'/%3E%3Cpath d='M72 100q-2 8-6 14M66 143q2 8 8 12' fill='none' stroke='%23aedf0c' stroke-width='11' stroke-linecap='round'/%3E%3C/g%3E%3Cuse href='%23s' transform='matrix(-1 0 0 1 254 0)'/%3E%3Cellipse cx='127' cy='75' rx='21' ry='15'/%3E%3Cellipse cx='127' cy='181' rx='21' ry='15'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,7 +91,7 @@ form { display: flex; gap: 8px; align-items: flex-end; padding-top: 14px; }
 textarea { flex: 1; min-width: 0; font: inherit; color: var(--text); background: none; border: 0; outline: 0;
   padding: 10px 4px 10px 12px; min-height: 44px; max-height: 160px; resize: none; }
 textarea:focus-visible { outline: 0; }
-.send { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent);
+.send { flex: none; width: 44px; height: 44px; border-radius: 0; border: 0; background: var(--accent);
   color: var(--on-accent); display: grid; place-items: center; }
 .send[disabled] { opacity: .3; cursor: default; }
 @media (hover: hover) {
@@ -175,7 +176,7 @@ const TO = { all: "всем троим", clinician: "клиницисту", bioh
 const SAMPLES = [
   "Пью кофе в пять вечера, это мешает уснуть?",
   "В спальне жарко. Это влияет на сон?",
-  "Сколько мелатонина пить перед сном?",
+  "Тренируюсь вечером. Это мешает уснуть?",
 ];
 const STAGES = [[1500, "ищет статью"], [4000, "пишет ответ"]];
 const motion = matchMedia("(prefers-reduced-motion: no-preference)").matches;
