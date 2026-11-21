@@ -26,7 +26,7 @@ FINAL_CODE = "case4-final-v1"
 # Квота модели общая на команду (300k в день), и /run важнее: у клиента свой потолок.
 # На стенде env не наш, поэтому значения по умолчанию рассчитаны на показ жюри.
 ASK_LIMIT = int(os.environ.get("ASK_LIMIT", "60"))  # вопросов в час
-ASK_BUDGET = int(os.environ.get("ASK_BUDGET", "40000"))  # токенов на /ask в сутки
+ASK_BUDGET = int(os.environ.get("ASK_BUDGET", "200000"))  # токенов на /ask в сутки
 MAX_BODY = 64 * 1024
 PAGE = Path(__file__).resolve().parent / "web" / "index.html"
 
