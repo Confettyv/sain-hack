@@ -364,8 +364,10 @@ async function ask(text) {
 }
 function grow() {
   const t = $("text");
+  const atBottom = innerHeight + scrollY >= document.documentElement.scrollHeight - 8;
   t.style.height = "auto";
   t.style.height = `${Math.min(t.scrollHeight + 2, 160)}px`;
+  if (atBottom) scrollTo(0, document.documentElement.scrollHeight);
 }
 $("form").addEventListener("submit", (e) => {
   e.preventDefault();
