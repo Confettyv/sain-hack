@@ -93,6 +93,11 @@ class GuardTest(unittest.TestCase):
     def test_allows_habits(self) -> None:
         self.assertEqual(guard.issues("Две чашки кофе до 14:00 и 18 градусов в спальне", False), [])
 
+    def test_formal_expert_keeps_vy(self) -> None:
+        self.assertTrue(guard.issues("Если ты ложишься вскоре после пяти, кофе мешает", False, formal=True))
+        self.assertEqual(guard.issues("Если вы ложитесь после пяти, текст статьи", False, formal=True), [])
+        self.assertEqual(guard.issues("Если ты ложишься после пяти", False), [])
+
 
 if __name__ == "__main__":
     unittest.main()

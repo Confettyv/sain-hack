@@ -29,9 +29,10 @@ JUDGE = re.compile(
     r"системн\w+\s+промпт|как\s+языков\w+\s+модел)",
     re.I,
 )
+INFORMAL = re.compile(r"(?<![а-яё])(ты|тебя|тебе|тобой|твой|твоя|твоё|твои|твоего|твоей|твоему|твоих|твоим)(?![а-яё])", re.I)
 
 
-def issues(text: str, refused: bool) -> list[str]:
+def issues(text: str, refused: bool, formal: bool = False) -> list[str]:
     found: list[str] = []
     if not text.strip():
         return ["пустой текст"]
@@ -43,6 +44,8 @@ def issues(text: str, refused: bool) -> list[str]:
         found.append("в отказе названа болезнь")
     if JUDGE.search(text):
         found.append("обращение к проверяющему")
+    if formal and INFORMAL.search(text):
+        found.append("обращение на «ты», нужно на «вы»")
     if len(text) > 2200:
         found.append("слишком длинно")
     return found

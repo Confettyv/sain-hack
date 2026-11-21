@@ -14,7 +14,7 @@ from typing import Any
 
 from sain import guard, prompts, search
 from sain.data import Dataset
-from sain.experts import card
+from sain.experts import card, recipe
 from sain.fake import fallback, heuristic
 from sain.llm import Chat, LLMError, parse_json
 
@@ -137,7 +137,7 @@ def write(chat: Chat, ds: Dataset, g: Group, d: Decision, extra: str = "") -> di
         notes: list[str] = []
         for e in todo:
             text = re.sub(r"[\s{}]+$", "", str(answers.get(e) or "")).strip()
-            problems = guard.issues(text, refused)
+            problems = guard.issues(text, refused, "на «вы»" in recipe(e)["body"])
             if problems:
                 bad.append(e)
                 notes.append(f"{e}: {', '.join(problems)}")
