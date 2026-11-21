@@ -25,10 +25,11 @@
   --lift-hover: 0 0 0 1px rgba(0, 0, 0, .1), 0 8px 24px rgba(0, 0, 0, .07);
   --float: 0 0 0 1px rgba(0, 0, 0, .06), 0 12px 32px rgba(0, 0, 0, .1);
   --card: #ffffff; --hover: #ebebeb; --press: #333; --err: #b42318;
+  --side-bg: #f7f7f7; --side: 0px;
 }
 :root[data-theme="dark"] {
   --bg: #17181b; --card: #1e1f23; --soft: #26272c; --text: #e4e2de; --muted: #9a9894; --line: #313237;
-  --accent: #c9c7c2; --on-accent: #17181b; --hover: #2d2e33; --press: #b3b1ac; --err: #e58a80;
+  --accent: #c9c7c2; --on-accent: #17181b; --hover: #2d2e33; --press: #b3b1ac; --err: #e58a80; --side-bg: #131417;
   --c-clinician: #7096d6; --c-biohacker: #62a67e; --c-nutritionist: #cf8a5f;
   --lift: 0 0 0 1px rgba(255, 255, 255, .06); --lift-hover: 0 0 0 1px rgba(255, 255, 255, .12);
   --float: 0 0 0 1px rgba(255, 255, 255, .08), 0 12px 32px rgba(0, 0, 0, .35);
@@ -36,7 +37,8 @@
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { margin: 0; min-height: 100vh; min-height: 100dvh; background: var(--bg); color: var(--text);
-  font: 16px/1.6 var(--font); letter-spacing: -.005em; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+  font: 16px/1.6 var(--font); letter-spacing: -.005em; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased;
+  padding-left: var(--side); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 button { font: inherit; letter-spacing: inherit; cursor: pointer; touch-action: manipulation; }
 .wrap { width: 100%; max-width: 720px; margin: 0 auto; padding: 0 16px; }
@@ -46,9 +48,32 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
 .brand { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 17px; font-weight: 600; letter-spacing: .04em; line-height: 1.15; }
 .brand small { display: block; white-space: nowrap; font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--muted); }
 .logo { flex: none; display: block; border-radius: 9px; }
+.lead { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.side { position: fixed; inset: 0 auto 0 0; z-index: 5; width: min(288px, 86vw); display: flex; flex-direction: column; gap: 10px;
+  padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); background: var(--side-bg); box-shadow: 1px 0 0 var(--line);
+  transform: translateX(-100%); visibility: hidden; }
+.side.open { transform: none; visibility: visible; box-shadow: var(--float); }
+.side-top { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding-left: 6px; }
+.side-title { font-size: 15px; font-weight: 600; }
+.new { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 0; border-radius: 14px;
+  background: var(--card); box-shadow: var(--lift); color: var(--text); font-size: 15px; font-weight: 500; }
+.list { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 2px; }
+.item { display: flex; align-items: center; border-radius: 12px; }
+.item:has([aria-current="true"]) { background: var(--hover); }
+.item .open { flex: 1; min-width: 0; min-height: 44px; padding: 0 4px 0 12px; border: 0; background: none; color: var(--text);
+  font-size: 14px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.del { flex: none; width: 40px; height: 44px; border: 0; border-radius: 12px; background: none; color: var(--muted); display: grid; place-items: center; }
+.side-note { margin: 0; padding: 0 6px; font-size: 13px; color: var(--muted); }
+.shade { position: fixed; inset: 0; z-index: 4; background: rgba(0, 0, 0, .32); }
+.shade[hidden] { display: none; }
+@media (min-width: 1000px) {
+  :root { --side: 288px; }
+  .side { width: var(--side); transform: none; visibility: visible; box-shadow: 1px 0 0 var(--line); }
+  button.open-side, button.close-side, .shade { display: none; }
+}
 .picker { position: relative; }
 .tools { display: flex; align-items: center; gap: 8px; }
-.theme { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; box-shadow: var(--lift); background: var(--card);
+.theme, .icon { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; box-shadow: var(--lift); background: var(--card);
   color: var(--text); display: grid; place-items: center; }
 .theme .sun, [data-dark] .theme .moon { display: none; }
 [data-dark] .theme .sun { display: block; }
@@ -56,6 +81,7 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
   border: 0; box-shadow: var(--lift); background: var(--card); color: var(--text); font-size: 15px; font-weight: 500; white-space: nowrap; }
 .pick svg { color: var(--muted); }
 @media (max-width: 389px) { .brand small { display: none; } }
+@media (max-width: 409px) { .logo { display: none; } }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
 [data-id="all"] .dot, [data-id="all"] .who::before { background: var(--c-clinician); margin-right: 20px;
   box-shadow: 10px 0 var(--c-biohacker), 20px 0 var(--c-nutritionist); }
@@ -108,7 +134,7 @@ form { display: flex; gap: 8px; align-items: flex-end; padding-top: 14px; }
   border: 0; background: none; color: var(--muted); }
 .to[disabled] { cursor: default; }
 .menu.up { position: fixed; top: auto; right: auto; bottom: calc(var(--foot, 80px) + 4px);
-  left: max(16px, calc(50% - 344px)); transform-origin: bottom left; }
+  left: max(calc(var(--side) + 16px), calc(50% + var(--side) / 2 - 344px)); transform-origin: bottom left; }
 textarea { flex: 1; min-width: 0; font: inherit; color: var(--text); background: none; border: 0; outline: 0;
   padding: 10px 4px 10px 6px; min-height: 44px; max-height: 160px; resize: none; }
 textarea:focus-visible { outline: 0; }
@@ -119,7 +145,9 @@ textarea:focus-visible { outline: 0; }
   .sample:hover { background: var(--hover); }
   .to:not([disabled]):hover { color: var(--text); }
   .pick:hover, .opt:hover { background: var(--soft); }
-  .card:hover, .theme:hover { box-shadow: var(--lift-hover); }
+  .card:hover, .theme:hover, .icon:hover, .new:hover { box-shadow: var(--lift-hover); }
+  .item:hover { background: var(--hover); }
+  .del:hover { color: var(--text); }
   .send:not([disabled]):hover, .retry:hover { background: var(--press); }
   .more:hover { text-decoration-color: currentColor; }
 }
@@ -130,6 +158,8 @@ textarea:focus-visible { outline: 0; }
   button:not([disabled]):active { transform: scale(.96); transition-duration: .08s; }
   @media (hover: hover) { .card:not(:active):hover { transform: translateY(-2px); } }
   .pick svg { transition: transform var(--t) var(--ease); }
+  .side { transition: transform .25s var(--ease), visibility 0s .25s; }
+  .side.open { transition: transform .25s var(--ease), visibility 0s; }
   .pick[aria-expanded="true"] svg { transform: rotate(180deg); }
   .menu:not([hidden]) { animation: drop .18s var(--ease) both; }
   @keyframes drop { from { opacity: 0; transform: translateY(-6px) scale(.97); } }
@@ -150,12 +180,30 @@ textarea:focus-visible { outline: 0; }
 </style>
 </head>
 <body>
+<aside class="side" id="side" aria-label="Чаты">
+  <div class="side-top">
+    <span class="side-title">Чаты</span>
+    <button class="icon close-side" type="button" id="closeSide" aria-label="Закрыть список чатов"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <button class="new" type="button" id="new">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Новый чат
+  </button>
+  <div class="list" id="list"></div>
+  <p class="side-note" id="listEmpty">Здесь появятся ваши разговоры с экспертами</p>
+  <p class="side-note">Чаты хранятся в этом браузере</p>
+</aside>
+<div class="shade" id="shade" hidden></div>
 <header id="head">
   <div class="wrap">
+    <div class="lead">
+    <button class="icon open-side" type="button" id="openSide" aria-label="Чаты" aria-expanded="false" aria-controls="side">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+    </button>
     <h1 class="brand">
       <svg class="logo" width="34" height="34" viewBox="0 0 256 256" aria-hidden="true"><rect width="256" height="256" rx="58" fill="#0a0a0a"/><g fill="#aedf0c"><g id="s"><ellipse cx="78" cy="91" rx="21" ry="15"/><ellipse cx="62" cy="129" rx="21" ry="17" transform="rotate(-25 62 129)"/><ellipse cx="81" cy="164" rx="21" ry="15"/><path d="M72 100q-2 8-6 14M66 143q2 8 8 12" fill="none" stroke="#aedf0c" stroke-width="11" stroke-linecap="round"/></g><use href="#s" transform="matrix(-1 0 0 1 254 0)"/><ellipse cx="127" cy="75" rx="21" ry="15"/><ellipse cx="127" cy="181" rx="21" ry="15"/></g></svg>
       <span>SAIN<small>эксперты по сну</small></span>
     </h1>
+    </div>
     <div class="tools">
     <button class="theme" type="button" id="theme" aria-label="Тёмная тема">
       <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
@@ -215,9 +263,13 @@ const mouse = matchMedia("(pointer: fine)").matches;
 let base = "";
 const experts = {};
 let current = "all";
-let history = [];
-let article = "";
 let failed = [];
+const KEY = "sain-chats";
+const emptyNode = $("empty");
+const wide = matchMedia("(min-width: 1000px)");
+const fresh = () => ({ title: "", turns: [] });
+let chats = [];
+let chat = null;
 
 function el(tag, cls, text) {
   const n = document.createElement(tag);
@@ -317,15 +369,14 @@ function pending(id) {
   box.append(stage, el("div", "bar"), el("div", "bar"));
   return box;
 }
-function answer(a, data, asked) {
+function answer(a, turn, animate) {
   const box = card(a.expert_id);
-  if (motion) box.classList.add("in");
-  if (data.refused) box.firstChild.append(el("span", "tag", "вне компетенции"));
-  else if (data.demo || data.degraded) box.firstChild.append(el("span", "tag", "упрощённый ответ"));
+  if (animate) box.classList.add("in");
+  if (turn.refused) box.firstChild.append(el("span", "tag", "вне компетенции"));
+  else if (turn.simple) box.firstChild.append(el("span", "tag", "упрощённый ответ"));
   box.append(el("p", "text", a.text));
-  const c = data.citations[0];
-  if (c) box.append(source(c));
-  if (asked === "all") {
+  if (turn.cite) box.append(source(turn.cite));
+  if (turn.asked === "all") {
     const more = el("button", "more", "Спросить дальше");
     more.type = "button";
     more.setAttribute("aria-label", `Продолжить разговор: ${name(a.expert_id)}`);
@@ -346,12 +397,71 @@ function source(c) {
   }
   return src;
 }
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(chats.filter((c) => c.turns.length).slice(0, 50))); } catch (e) {}
+}
+function drawList() {
+  const shown = chats.filter((c) => c.turns.length);
+  $("list").replaceChildren(...shown.map((c) => {
+    const item = el("div", "item");
+    const open = el("button", "open", c.title);
+    open.type = "button";
+    open.title = c.title;
+    open.setAttribute("aria-current", String(c === chat));
+    open.onclick = () => { openChat(c); side(false); };
+    const del = el("button", "del");
+    del.type = "button";
+    del.setAttribute("aria-label", `Удалить чат «${c.title}»`);
+    del.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>`;
+    del.onclick = () => remove(c);
+    item.append(open, del);
+    return item;
+  }));
+  $("listEmpty").hidden = shown.length > 0;
+}
+const busyNow = () => $("send").getAttribute("aria-busy") === "true";
+function openChat(c) {
+  if (busyNow()) return;
+  chat = c;
+  chats = chats.filter((x) => x.turns.length || x === c);
+  failed = [];
+  $("log").replaceChildren(...(c.turns.length ? c.turns.flatMap((t) => [el("p", "q", t.q), ...t.answers.map((a) => answer(a, t, false))]) : [emptyNode]));
+  drawList();
+  scrollTo(0, c.turns.length ? document.documentElement.scrollHeight : 0);
+}
+function newChat() {
+  if (chat.turns.length) {
+    chats.unshift(fresh());
+    openChat(chats[0]);
+    select("all");
+  }
+  side(false);
+  if (mouse) $("text").focus();
+}
+function remove(c) {
+  if (busyNow()) return;
+  chats = chats.filter((x) => x !== c);
+  save();
+  if (c !== chat) return drawList();
+  chats.unshift(fresh());
+  openChat(chats[0]);
+}
+function side(open) {
+  if (wide.matches) return;
+  $("side").classList.toggle("open", open);
+  $("shade").hidden = !open;
+  $("openSide").setAttribute("aria-expanded", String(open));
+  for (const n of document.querySelectorAll("header, main, footer")) n.inert = open;
+  if (open) $("new").focus();
+  else if ($("side").contains(document.activeElement)) $("openSide").focus();
+}
 function busy(on) {
   $("send").disabled = on;
   $("send").setAttribute("aria-busy", String(on));
 }
 async function ask(text) {
-  $("empty")?.remove();
+  const c = chat;
+  emptyNode.remove();
   failed.forEach((n) => n.remove());
   failed = [];
   const asked = current;
@@ -364,18 +474,22 @@ async function ask(text) {
     for (const s of Object.values(slots)) s.querySelector(".stage").firstChild.textContent = label;
   }, ms));
   try {
-    const sent = history.map((m) => (m.answers ? { role: "assistant", text: m.answers[asked] || Object.values(m.answers)[0] } : m));
-    const body = { expert_id: asked, text, history: sent, article };
+    const sent = c.turns.flatMap((t) => [{ role: "user", text: t.q }, { role: "assistant", text: (t.answers.find((a) => a.expert_id === asked) || t.answers[0]).text }]);
+    const body = { expert_id: asked, text, history: sent, article: c.turns.at(-1)?.cite?.article_id || "" };
     const data = await api("/ask", body).catch(async (err) => {
       if (err.status !== 429) throw err;
       return { ...(await api("/ask", { ...body, fake: true })), demo: true };
     });
-    const list = data.answers || [{ expert_id: data.expert_id, text: data.text }];
-    history.push({ role: "user", text }, { answers: Object.fromEntries(list.map((a) => [a.expert_id, a.text])) });
-    article = data.citations[0]?.article_id || "";
-    for (const [i, a] of list.entries()) {
+    const answers = (data.answers || [{ expert_id: data.expert_id, text: data.text }]).map(({ expert_id, text }) => ({ expert_id, text }));
+    const turn = { q: text, asked, refused: !!data.refused, simple: !!(data.demo || data.degraded), cite: data.citations[0] || null, answers };
+    c.turns.push(turn);
+    c.title ||= text.slice(0, 80);
+    chats = [c, ...chats.filter((x) => x !== c)];
+    save();
+    drawList();
+    for (const [i, a] of answers.entries()) {
       if (i && motion) await sleep(400);
-      slots[a.expert_id].replaceWith(answer(a, data, asked));
+      slots[a.expert_id].replaceWith(answer(a, turn, motion));
     }
   } catch (err) {
     Object.values(slots).forEach((s) => s.remove());
@@ -429,7 +543,12 @@ $("to").onclick = () => menu($("menu").hidden, $("to"));
 document.addEventListener("click", (e) => {
   if (!$("picker").contains(e.target) && !$("to").contains(e.target)) menu(false);
 });
+$("new").onclick = newChat;
+$("openSide").onclick = () => side(true);
+$("closeSide").onclick = () => side(false);
+$("shade").onclick = () => side(false);
 document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && $("side").classList.contains("open")) side(false);
   if (e.key === "Escape" && !$("menu").hidden) {
     menu(false);
     opener.focus();
@@ -453,6 +572,10 @@ $("theme").onclick = () => {
   paint();
 };
 paint();
+try { chats = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) {}
+chats.unshift(fresh());
+chat = chats[0];
+drawList();
 loadExperts();
 </script>
 </body>
