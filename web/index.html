@@ -91,7 +91,7 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
 @media (max-width: 389px) { .brand small { display: none; } }
 @media (max-width: 409px) { .logo { display: none; } }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
-[data-id="all"] .dot, [data-id="all"] .who::before { background: var(--c-clinician); margin-right: 20px;
+[data-id="all"] .dot { background: var(--c-clinician); margin-right: 20px;
   box-shadow: 10px 0 var(--c-biohacker), 20px 0 var(--c-nutritionist); }
 .menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 3; width: min(340px, calc(100vw - 32px));
   display: grid; gap: 2px; padding: 6px; background: var(--card); border-radius: 18px; box-shadow: var(--float); transform-origin: top right; }
@@ -118,7 +118,12 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
   border-radius: var(--r) var(--r) 6px var(--r); overflow-wrap: anywhere; }
 .a { margin: 0; padding: 16px 18px; background: var(--card); border-radius: var(--r); box-shadow: var(--lift); min-width: 0; }
 .who { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: var(--text); }
-.who::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--accent)); }
+.sign { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, transparent); }
+[data-theme="dark"] .sign { background: color-mix(in srgb, var(--c) 24%, transparent); }
+.sign.all { width: auto; background: none; display: flex; }
+.sign.all i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px var(--card); }
+.sign.all i + i { margin-left: -5px; }
 .tag { margin-left: auto; font-weight: 500; font-size: 12px; color: var(--muted); background: var(--soft); border-radius: 999px; padding: 2px 10px; }
 .text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .src { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
@@ -177,6 +182,8 @@ textarea:focus-visible { outline: 0; }
   .dots i:nth-child(3) { animation-delay: .3s; }
   .bar { animation: glow 1.4s infinite ease-in-out; }
   .pending, .in { animation: rise .45s var(--ease) both; }
+  .pending .sign { animation: breathe 1.6s infinite ease-in-out; }
+  @keyframes breathe { 50% { transform: scale(1.1); opacity: .7; } }
   .send[aria-busy="true"] { opacity: 1; }
   .send[aria-busy="true"] svg { display: none; }
   .send[aria-busy="true"]::after { content: ""; width: 18px; height: 18px; border-radius: 50%;
@@ -331,7 +338,7 @@ async function loadExperts() {
       b.type = "button";
       b.dataset.id = id;
       b.style.setProperty("--c", `var(--c-${id})`);
-      b.prepend(el("span", "who", name(id)));
+      b.prepend(who(id, "span", name(id)));
       b.onclick = () => {
         select(id);
         menu(false);
@@ -345,7 +352,7 @@ async function loadExperts() {
       const b = el("button", "card", e.tagline);
       b.type = "button";
       b.style.setProperty("--c", `var(--c-${e.expert_id})`);
-      b.prepend(el("span", "who", e.name));
+      b.prepend(who(e.expert_id, "span", e.name));
       if (e.sample) b.append(el("span", "say", `«${e.sample}»`));
       b.onclick = () => pick(e.expert_id);
       return b;
@@ -357,10 +364,24 @@ async function loadExperts() {
     $("cards").replaceChildren(el("p", "err", `Эксперты не загрузились: ${err.message}. Обновите страницу.`));
   }
 }
+const ICONS = {
+  clinician: '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+  biohacker: '<path d="M4 4v16h16"/><path d="m8 15 3-4 3 2 5-6"/>',
+  nutritionist: '<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="m5 19 8-8"/>',
+};
+function who(id, tag, text) {
+  const n = el(tag, "who");
+  const s = el("span", id === "all" ? "sign all" : "sign");
+  s.setAttribute("aria-hidden", "true");
+  if (id === "all") for (const e of Object.keys(ICONS)) s.append(Object.assign(el("i"), { style: `--c: var(--c-${e})` }));
+  else s.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[id] || ""}</svg>`;
+  n.append(s, text);
+  return n;
+}
 function card(id) {
   const box = el("article", "a");
   box.style.setProperty("--c", `var(--c-${id})`);
-  box.append(el("div", "who", name(id)));
+  box.append(who(id, "div", name(id)));
   return box;
 }
 function pending(id) {
@@ -389,6 +410,21 @@ function answer(a, turn, animate) {
     box.append(more);
   }
   return box;
+}
+async function type(box) {
+  const p = box.querySelector(".text");
+  const after = [...box.children].filter((n) => n.matches(".src, .more"));
+  const words = p.textContent.split(/(?<=\s)/);
+  const step = Math.ceil(words.length / 60);
+  after.forEach((n) => (n.hidden = true));
+  box.setAttribute("aria-busy", "true");
+  p.textContent = "";
+  for (let i = 0; i < words.length; i += step) {
+    p.textContent += words.slice(i, i + step).join("");
+    await sleep(32);
+  }
+  box.removeAttribute("aria-busy");
+  after.forEach((n) => (n.hidden = false));
 }
 function source(c) {
   const where = [c.article_title || c.article_id, c.section_title && `раздел «${c.section_title}»`, c.year].filter(Boolean);
@@ -509,10 +545,12 @@ async function ask(text) {
     chats = [c, ...chats.filter((x) => x !== c)];
     save();
     drawList();
-    for (const [i, a] of answers.entries()) {
-      if (i && motion) await sleep(400);
-      slots[a.expert_id].replaceWith(answer(a, turn, motion));
-    }
+    await Promise.all(answers.map(async (a, i) => {
+      if (motion) await sleep(i * 400);
+      const box = answer(a, turn, motion);
+      slots[a.expert_id].replaceWith(box);
+      if (motion) await type(box);
+    }));
   } catch (err) {
     Object.values(slots).forEach((s) => s.remove());
     const box = el("div", "err");
