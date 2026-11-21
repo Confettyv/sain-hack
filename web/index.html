@@ -86,10 +86,10 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
 footer { position: sticky; bottom: 0; background: linear-gradient(rgba(255, 255, 255, 0), var(--bg) 14px);
   padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
 form { display: flex; gap: 8px; align-items: flex-end; padding-top: 14px; }
-.box { flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 8px; padding: 6px; border-radius: 26px; background: var(--bg); box-shadow: var(--lift); }
+.box { flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 8px; padding: 6px; background: var(--bg); border: 2px solid var(--accent); }
 textarea { flex: 1; min-width: 0; font: inherit; color: var(--text); background: none; border: 0; outline: 0;
   padding: 10px 4px 10px 12px; min-height: 44px; max-height: 160px; resize: none; }
-.box:focus-within { box-shadow: none; }
+textarea:focus-visible { outline: 0; }
 .send { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent);
   color: var(--on-accent); display: grid; place-items: center; }
 .send[disabled] { opacity: .3; cursor: default; }
