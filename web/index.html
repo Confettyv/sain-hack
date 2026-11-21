@@ -111,14 +111,12 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
 footer { position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 14px);
   padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
 form { display: flex; gap: 8px; align-items: flex-end; padding-top: 14px; }
-.box { flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 4px; padding: 6px; background: var(--card);
-  border-radius: 26px; box-shadow: var(--lift); }
-.box:focus-within { box-shadow: 0 0 0 1.5px var(--accent); }
+.box { flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 4px; padding: 6px; background: var(--card); border: 2px solid var(--accent); }
 .to { flex: none; display: flex; align-items: center; height: 44px; padding-left: 12px; }
 textarea { flex: 1; min-width: 0; font: inherit; color: var(--text); background: none; border: 0; outline: 0;
   padding: 10px 4px 10px 6px; min-height: 44px; max-height: 160px; resize: none; }
 textarea:focus-visible { outline: 0; }
-.send { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent);
+.send { flex: none; width: 44px; height: 44px; border-radius: 0; border: 0; background: var(--accent);
   color: var(--on-accent); display: grid; place-items: center; }
 .send[disabled] { opacity: .3; cursor: default; }
 @media (hover: hover) {
