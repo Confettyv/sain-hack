@@ -101,7 +101,7 @@ def classify(chat: Chat, ds: Dataset, groups: list[Group], extra: str = "", cata
     return result
 
 
-def write(chat: Chat, ds: Dataset, g: Group, d: Decision, extra: str = "") -> dict[str, str]:
+def write(chat: Chat, ds: Dataset, g: Group, d: Decision, extra: str = "", memory: list[str] | None = None) -> dict[str, str]:
     d.article, d.section = search.safe_section(ds, d.article, d.keywords)
     refused = d.kind == "attack"
     experts = g.experts
@@ -119,6 +119,8 @@ def write(chat: Chat, ds: Dataset, g: Group, d: Decision, extra: str = "") -> di
         "section": section.get("title", ""),
         "excerpt": search.excerpt(ds, d.article, d.section, d.keywords),
     }
+    if memory:
+        task["memory"] = memory
     texts: dict[str, str] = {}
     todo = list(experts)
     for attempt in range(2):
@@ -195,7 +197,7 @@ def ask_live(
     """Вопрос из клиента: тот же путь, что у /run; несколько экспертов — один вызов на всех."""
     g = Group("live", text, user_id, "", [(e, e) for e in expert_ids], history, last_article)
     d = classify(chat, ds, [g], prompts.LIVE_CLASSIFY, search.titles(ds))["live"]
-    texts = write(chat, ds, g, d, prompts.LIVE_WRITE)
+    texts = write(chat, ds, g, d, prompts.LIVE_WRITE, ds.memory(user_id))
     offtopic = d.topic == "offtopic" and d.kind == "normal"
     article = ds.articles[d.article]
     section = ds.sections[d.article][d.section]

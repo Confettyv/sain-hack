@@ -158,6 +158,29 @@ class RobustnessTest(unittest.TestCase):
         ask_live(Spy(), self.ds(), ["clinician"], "На что ты ссылался?", "", [], "art_нет")
         self.assertEqual([it.get("last_article") for it in Spy.items], ["art_20", None])
 
+    def test_user_memory_reaches_live_write(self) -> None:
+        from sain.data import Dataset
+        from sain.pipeline import ask_live
+
+        raw = dataset()
+        raw["chat_history"] = [
+            {"user_id": "u1", "role": "user", "at": "2026-09-28T20:00", "text": "После обеда с завтрашнего дня только ройбуш."},
+            {"user_id": "u1", "role": "user", "at": "2026-09-29T20:00", "text": "Беру."},
+            {"user_id": "u1", "role": "agent", "at": "2026-09-28T20:01", "text": "Хорошее решение, посмотрим на сон."},
+            {"user_id": "u2", "role": "user", "at": "2026-09-28T20:00", "text": "Чужое длинное сообщение про кофе вечером."},
+        ]
+
+        class Spy(FakeChat):
+            memory: list = []
+
+            def ask(self, system: str, user: str, *, max_tokens: int, tag: str) -> Reply:
+                if tag == "write":
+                    Spy.memory = json.loads(user).get("memory", [])
+                return super().ask(system, user, max_tokens=max_tokens, tag=tag)
+
+        ask_live(Spy(), Dataset.from_payload(raw), ["clinician"], "Кофе вечером мешает?", "u1", [])
+        self.assertEqual(Spy.memory, ["2026-09-28 После обеда с завтрашнего дня только ройбуш."])
+
 
 class Offtopic(FakeChat):
     def ask(self, system: str, user: str, *, max_tokens: int, tag: str) -> Reply:
@@ -175,6 +198,7 @@ class LiveTest(unittest.TestCase):
         got = ask_live(Offtopic(), Dataset.from_payload(dataset()), ["biohacker"], "Сколько живёт кот?", "", [])
         self.assertEqual(got["citations"], [])
         self.assertEqual(got["answers"][0]["text"], "Я отвечаю только про сон.")
+
 
 class SearchTest(unittest.TestCase):
     def test_skip_word_bounds(self) -> None:

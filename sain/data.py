@@ -82,5 +82,16 @@ class Dataset:
             for m in rows[-limit:]
         ]
 
+    def memory(self, user_id: str) -> list[str]:
+        rows = sorted(
+            (
+                m
+                for m in self.raw.get("chat_history") or []
+                if m.get("user_id") == user_id and m.get("role") == "user" and len(str(m.get("text", ""))) >= 30
+            ),
+            key=lambda m: str(m.get("at", "")),
+        )
+        return [f"{str(m.get('at', ''))[:10]} {str(m.get('text', ''))[:300]}" for m in rows][-80:]
+
     def has(self, article_id: str, section_id: str) -> bool:
         return section_id in self.sections.get(article_id, {})
