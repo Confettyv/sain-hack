@@ -18,7 +18,7 @@ ATTACK = re.compile(
 TOPICS = (
     (r"вин|алкогол|пив|бокал", "art_02", "alcohol heart rate sleep recovery"),
     (r"кофе|кофеин|энергетик|чай", "art_20", "caffeine timing dose sleep"),
-    (r"трениров|зал|пробеж|спорт|бег", "art_08", "exercise sleep quality evening"),
+    (r"тренир|зал|пробеж|спорт|бег", "art_08", "exercise sleep quality evening"),
     (r"жар|душн|температур|батаре|холод", "art_16", "thermal environment heat awakenings"),
     (r"телефон|экран|сериал|планшет|соцсет", "art_05", "smartphone evening screen sleep"),
     (r"свет|ламп|солнц|утром\s+гул", "art_14", "light exposure evening melatonin"),
