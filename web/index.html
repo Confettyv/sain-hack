@@ -104,7 +104,11 @@ footer { position: sticky; bottom: 0; background: linear-gradient(transparent, v
   padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
 form { display: flex; gap: 8px; align-items: flex-end; padding-top: 14px; }
 .box { flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 4px; padding: 6px; background: var(--card); border: 2px solid var(--accent); }
-.to { flex: none; display: flex; align-items: center; height: 44px; padding-left: 12px; }
+.to { flex: none; display: flex; align-items: center; gap: 4px; height: 44px; min-width: 44px; padding: 0 4px 0 12px;
+  border: 0; background: none; color: var(--muted); }
+.to[disabled] { cursor: default; }
+.menu.up { position: fixed; top: auto; right: auto; bottom: calc(var(--foot, 80px) + 4px);
+  left: max(16px, calc(50% - 344px)); transform-origin: bottom left; }
 textarea { flex: 1; min-width: 0; font: inherit; color: var(--text); background: none; border: 0; outline: 0;
   padding: 10px 4px 10px 6px; min-height: 44px; max-height: 160px; resize: none; }
 textarea:focus-visible { outline: 0; }
@@ -113,6 +117,7 @@ textarea:focus-visible { outline: 0; }
 .send[disabled] { opacity: .3; cursor: default; }
 @media (hover: hover) {
   .sample:hover { background: var(--hover); }
+  .to:not([disabled]):hover { color: var(--text); }
   .pick:hover, .opt:hover { background: var(--soft); }
   .card:hover, .theme:hover { box-shadow: var(--lift-hover); }
   .send:not([disabled]):hover, .retry:hover { background: var(--press); }
@@ -184,7 +189,7 @@ textarea:focus-visible { outline: 0; }
   <form class="wrap" id="form">
     <label class="sr" for="text">Вопрос</label>
     <div class="box">
-      <span class="to" id="to" data-id="all" aria-hidden="true"><span class="dot"></span></span>
+      <button class="to" type="button" id="to" data-id="all" aria-label="Выбрать эксперта" aria-expanded="false" aria-controls="menu" disabled><span class="dot"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5-5 5 5"/></svg></button>
       <textarea id="text" name="text" rows="1" maxlength="1000" placeholder="Ваш вопрос" enterkeyhint="send" required></textarea>
       <button class="send" type="submit" id="send" aria-label="Отправить" disabled>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
@@ -235,8 +240,11 @@ async function api(path, body) {
 function name(id) {
   return id === "all" ? "Все трое" : experts[id]?.name || id;
 }
-function menu(open) {
-  $("pick").setAttribute("aria-expanded", String(open));
+let opener = null;
+function menu(open, from = $("pick")) {
+  if (open) opener = from;
+  for (const b of [$("pick"), $("to")]) b.setAttribute("aria-expanded", String(open && b === from));
+  $("menu").classList.toggle("up", open && from === $("to"));
   $("menu").hidden = !open;
 }
 function select(id) {
@@ -270,11 +278,12 @@ async function loadExperts() {
       b.onclick = () => {
         select(id);
         menu(false);
-        $("pick").focus();
+        opener.focus();
       };
       return b;
     }));
     $("pick").disabled = false;
+    $("to").disabled = false;
     $("cards").replaceChildren(...list.map((e) => {
       const b = el("button", "card", e.tagline);
       b.type = "button";
@@ -416,18 +425,22 @@ for (const q of SAMPLES) {
   $("samples").append(b);
 }
 $("pick").onclick = () => menu($("menu").hidden);
+$("to").onclick = () => menu($("menu").hidden, $("to"));
 document.addEventListener("click", (e) => {
-  if (!$("picker").contains(e.target)) menu(false);
+  if (!$("picker").contains(e.target) && !$("to").contains(e.target)) menu(false);
 });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !$("menu").hidden) {
     menu(false);
-    $("pick").focus();
+    opener.focus();
   }
 });
 new ResizeObserver(() => {
   document.documentElement.style.scrollPaddingTop = `${$("head").offsetHeight + 12}px`;
 }).observe($("head"));
+new ResizeObserver(() => {
+  document.documentElement.style.setProperty("--foot", `${document.querySelector("footer").offsetHeight}px`);
+}).observe(document.querySelector("footer"));
 function paint() {
   const on = document.documentElement.dataset.theme === "dark";
   document.body.toggleAttribute("data-dark", on);
