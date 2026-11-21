@@ -516,8 +516,22 @@ function busy(on) {
   $("send").disabled = on;
   $("send").setAttribute("aria-busy", String(on));
 }
+function short(text) {
+  const t = text.replace(/\s+/g, " ").trim();
+  const cut = t.length > 42 ? t.slice(0, 42).replace(/\s\S*$/, "") + "…" : t;
+  return cut.charAt(0).toUpperCase() + cut.slice(1);
+}
+function nameChat(c, text) {
+  api("/title", { text }).then(({ title }) => {
+    if (!title || !chats.includes(c)) return;
+    c.title = title;
+    save();
+    drawList();
+  }).catch(() => {});
+}
 async function ask(text) {
   const c = chat;
+  if (!c.turns.length) nameChat(c, text);
   emptyNode.remove();
   failed.forEach((n) => n.remove());
   failed = [];
@@ -540,7 +554,7 @@ async function ask(text) {
     const answers = (data.answers || [{ expert_id: data.expert_id, text: data.text }]).map(({ expert_id, text }) => ({ expert_id, text }));
     const turn = { q: text, asked, refused: !!data.refused, simple: !!(data.demo || data.degraded), cite: data.citations[0] || null, answers };
     c.turns.push(turn);
-    c.title ||= text.slice(0, 80);
+    c.title ||= short(text);
     c.at = Date.now();
     chats = [c, ...chats.filter((x) => x !== c)];
     save();

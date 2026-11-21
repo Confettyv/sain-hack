@@ -40,6 +40,34 @@ class AskUser(unittest.TestCase):
         self.assertEqual(self.asked_user([{"user_id": "u1"}, {"user_id": "u2"}]), "")
 
 
+class Title(unittest.TestCase):
+    def setUp(self) -> None:
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), main.Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        main.State.cache.clear()
+
+    def tearDown(self) -> None:
+        self.server.shutdown()
+        self.server.server_close()
+
+    def titled(self, text: str, content: str, fake: bool = False) -> str:
+        chat = mock.Mock()
+        chat.ask.return_value = main.llm.Reply(content=content, tokens_in=0, out=0, finish="stop")
+        body = json.dumps({"text": text, "fake": fake}).encode()
+        req = urllib.request.Request(f"http://127.0.0.1:{self.server.server_port}/title", body, {"Content-Type": "application/json"})
+        with mock.patch.object(main.llm, "from_env", return_value=chat), urllib.request.urlopen(req, timeout=5) as resp:
+            return json.loads(resp.read())["title"]
+
+    def test_model_title_cleaned(self) -> None:
+        self.assertEqual(self.titled("Пью кофе в пять вечера", '{"title": "«Кофе вечером и сон»."}'), "Кофе вечером и сон")
+
+    def test_broken_reply_gives_empty(self) -> None:
+        self.assertEqual(self.titled("павп", "не json"), "")
+
+    def test_fake_mode_skips_model(self) -> None:
+        self.assertEqual(self.titled("Пью кофе", '{"title": "Кофе"}', fake=True), "")
+
+
 class Preview(unittest.TestCase):
     def test_og_image_served(self) -> None:
         server = ThreadingHTTPServer(("127.0.0.1", 0), main.Handler)

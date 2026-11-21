@@ -31,6 +31,14 @@ MAX_BODY = 64 * 1024
 PAGE = Path(__file__).resolve().parent / "web" / "index.html"
 
 
+TITLE_PROMPT = (
+    "Ты называешь чат по первому вопросу пользователя, как в ChatGPT. "
+    "Название по-русски, 2–5 слов, передаёт суть вопроса, с заглавной буквы, без кавычек и точки в конце. "
+    "Если в вопросе нет смысла (набор букв, приветствие), верни пустую строку. "
+    'Ответ строго JSON: {"title": "..."}'
+)
+
+
 class State:
     lock = threading.Lock()
     load_lock = threading.Lock()
@@ -160,6 +168,8 @@ class Handler(BaseHTTPRequestHandler):
             self.run_case(data)
         elif path == "/ask":
             self.ask(data)
+        elif path == "/title":
+            self.title(data)
         else:
             self.send_json(404, {"error": "нет такого пути"})
 
@@ -187,6 +197,28 @@ class Handler(BaseHTTPRequestHandler):
         m = llm.METER
         log.info("run: готово за %.0f с, вызовов %s, токенов %s %s", time.monotonic() - started, m.calls, m.spent, m.by_tag)
         self.send_json(200, result)
+
+    def title(self, data: dict[str, Any]) -> None:
+        text = str(data.get("text") or "").strip()[:500]
+        key = json.dumps(["title", text], ensure_ascii=False)
+        with State.lock:
+            done = State.cache.get(key)
+            closed = State.ask_tokens >= ASK_BUDGET
+        if done is not None or not text or data.get("fake") or closed:
+            self.send_json(200, {"title": (done or {}).get("title", "")})
+            return
+        before = llm.METER.spent
+        try:
+            reply = llm.from_env().ask(TITLE_PROMPT, json.dumps({"question": text}, ensure_ascii=False), max_tokens=60, tag="title")
+            title = str(json.loads(reply.content).get("title") or "").strip().strip("«»\"'. ")[:60]
+        except Exception as e:  # noqa: BLE001
+            log.warning("title: %s", e)
+            title = ""
+        with State.lock:
+            State.ask_tokens += max(0, llm.METER.spent - before)
+            if title:
+                State.cache[key] = {"title": title}
+        self.send_json(200, {"title": title})
 
     def ask(self, data: dict[str, Any]) -> None:
         """expert_id — один эксперт (ответ как раньше) или "all": все три одним вызовом."""
