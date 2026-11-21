@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="light">
 <script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <title>SAIN · эксперты по сну</title>
 <meta name="description" content="Вопрос о сне трём экспертам: ответ в стиле эксперта со ссылкой на научную статью.">
@@ -27,21 +27,13 @@
   --card: #ffffff; --hover: #ebebeb; --press: #333; --err: #b42318;
 }
 :root[data-theme="dark"] {
-  --bg: #050506; --card: #0f0f12; --soft: #1a1a1f; --text: #f7f5f5; --muted: #a6a0a1; --line: #2a2a30;
-  --accent: #f7f5f5; --on-accent: #080809; --hover: #24242a; --press: #d6d3d3; --err: #ff7a7a;
-  --c-clinician: #5b8cf0; --c-biohacker: #3fb873; --c-nutritionist: #f08a4b;
-  --lift: 0 0 0 1px rgba(255, 255, 255, .08); --lift-hover: 0 0 0 1px rgba(255, 255, 255, .16);
-  --float: 0 0 0 1px rgba(255, 255, 255, .1), 0 12px 32px rgba(0, 0, 0, .6);
+  --bg: #17181b; --card: #1e1f23; --soft: #26272c; --text: #e4e2de; --muted: #9a9894; --line: #313237;
+  --accent: #c9c7c2; --on-accent: #17181b; --hover: #2d2e33; --press: #b3b1ac; --err: #e58a80;
+  --c-clinician: #7096d6; --c-biohacker: #62a67e; --c-nutritionist: #cf8a5f;
+  --lift: 0 0 0 1px rgba(255, 255, 255, .06); --lift-hover: 0 0 0 1px rgba(255, 255, 255, .12);
+  --float: 0 0 0 1px rgba(255, 255, 255, .08), 0 12px 32px rgba(0, 0, 0, .35);
   color-scheme: dark;
 }
-:root[data-theme="light"] { color-scheme: light; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #050506; --card: #0f0f12; --soft: #1a1a1f; --text: #f7f5f5; --muted: #a6a0a1; --line: #2a2a30;
-  --accent: #f7f5f5; --on-accent: #080809; --hover: #24242a; --press: #d6d3d3; --err: #ff7a7a;
-  --c-clinician: #5b8cf0; --c-biohacker: #3fb873; --c-nutritionist: #f08a4b;
-  --lift: 0 0 0 1px rgba(255, 255, 255, .08); --lift-hover: 0 0 0 1px rgba(255, 255, 255, .16);
-  --float: 0 0 0 1px rgba(255, 255, 255, .1), 0 12px 32px rgba(0, 0, 0, .6);
-} }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { margin: 0; min-height: 100vh; min-height: 100dvh; background: var(--bg); color: var(--text);
   font: 16px/1.6 var(--font); letter-spacing: -.005em; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
@@ -436,9 +428,8 @@ document.addEventListener("keydown", (e) => {
 new ResizeObserver(() => {
   document.documentElement.style.scrollPaddingTop = `${$("head").offsetHeight + 12}px`;
 }).observe($("head"));
-const dark = matchMedia("(prefers-color-scheme: dark)");
 function paint() {
-  const on = (document.documentElement.dataset.theme || (dark.matches ? "dark" : "light")) === "dark";
+  const on = document.documentElement.dataset.theme === "dark";
   document.body.toggleAttribute("data-dark", on);
   $("theme").setAttribute("aria-label", on ? "Светлая тема" : "Тёмная тема");
 }
@@ -448,7 +439,6 @@ $("theme").onclick = () => {
   try { localStorage.setItem("theme", next); } catch (e) {}
   paint();
 };
-dark.addEventListener("change", paint);
 paint();
 loadExperts();
 </script>
