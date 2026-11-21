@@ -11,50 +11,45 @@
   --tile: #fff; --ink: #111; --clinician: #3f7be6; --biohacker: #2f9e5f; --nutritionist: #e2742f; }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font-family: Onest, Inter, system-ui, sans-serif; }
-section { width: 1280px; height: 720px; padding: 104px 48px 48px; position: relative; overflow: hidden; break-after: page;
-  display: flex; flex-direction: column; gap: 28px;
-  background: linear-gradient(90deg, transparent calc(25% - 1px), var(--grid) 25%, transparent calc(25% + 1px),
-    transparent calc(50% - 1px), var(--grid) 50%, transparent calc(50% + 1px),
-    transparent calc(75% - 1px), var(--grid) 75%, transparent calc(75% + 1px)), var(--bg); }
-section::before { content: "SAIN.ONE"; position: absolute; left: 48px; top: 40px; font-size: 14px; font-weight: 600; letter-spacing: .02em; }
-section::after { content: attr(data-n) " / 12"; position: absolute; right: 48px; top: 30px; font-size: 13px; font-weight: 500;
-  border: 1.5px solid var(--text); border-radius: 999px; padding: 8px 18px; letter-spacing: .04em; }
-.kicker { color: var(--muted); font-size: 14px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+section { width: 1280px; height: 720px; padding: 64px 64px 56px; position: relative; overflow: hidden; break-after: page;
+  display: flex; flex-direction: column; gap: 32px; background: var(--bg); }
+section::after { content: attr(data-n); position: absolute; right: 64px; bottom: 28px; font-size: 16px; color: var(--muted); }
 h2 { margin: 0; font-size: 50px; font-weight: 600; letter-spacing: -.035em; line-height: 1.05; max-width: 1100px; }
-p, li { font-size: 21px; line-height: 1.45; margin: 0; }
+p, li { font-size: 25px; line-height: 1.4; margin: 0; }
 .muted { color: var(--muted); }
 ul { margin: 0; padding: 0; list-style: none; display: grid; counter-reset: n; }
-li { padding: 14px 0 14px 56px; position: relative; border-top: 1px solid var(--line); counter-increment: n; }
-li::before { content: counter(n, decimal-leading-zero); position: absolute; left: 0; top: 17px; font-size: 14px; color: var(--muted); letter-spacing: .06em; }
+li { padding: 16px 0; border-top: 1px solid var(--line); }
+.num li { padding-left: 52px; position: relative; counter-increment: n; }
+.num li::before { content: counter(n, decimal-leading-zero); position: absolute; left: 0; top: 20px; font-size: 16px; font-weight: 600; color: var(--muted); }
 .cols { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .cols > * + * { border-left: 1px solid var(--line); }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: auto; }
 .box { background: var(--tile); padding: 24px 26px; display: grid; gap: 10px; align-content: start; }
-.box h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; display: flex; gap: 10px; align-items: center; }
-.box p { font-size: 18px; color: #3a3a37; }
+.box h3 { margin: 0; font-size: 22px; font-weight: 600; display: flex; gap: 10px; align-items: center; }
+.box p { font-size: 21px; color: #3a3a37; }
 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
 .wordmark { font-size: 360px; font-weight: 600; letter-spacing: -.06em; line-height: .8; margin: 0 0 0 -12px; }
 .cover-title { font-size: 46px; font-weight: 600; letter-spacing: -.03em; line-height: 1.05; }
 .team { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 8px; margin-top: auto; overflow: hidden; }
 .team div { background: var(--tile); padding: 20px 22px; text-align: center; }
 .team div + div { border-left: 1px solid var(--line); }
-.team b { display: block; font-size: 20px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-.team span { color: var(--muted); font-size: 15px; }
+.team b { display: block; font-size: 24px; font-weight: 600; }
+.team span { color: var(--muted); font-size: 17px; }
 .path { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-top: auto; }
 .path .box + .box { border-left: 1px solid var(--line); }
 .path .box b { color: var(--muted); font-size: 14px; letter-spacing: .06em; }
-.screens { display: flex; gap: 24px; justify-content: center; margin-top: -4px; }
-.screens figure { margin: 0; display: grid; gap: 12px; justify-items: center; }
-.screens img { height: 520px; border-radius: 8px; border: 1px solid var(--line); }
-.screens figcaption { color: var(--muted); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
+.screens { display: flex; gap: 40px; justify-content: center; margin-top: auto; }
+.screens figure { margin: 0; display: grid; gap: 14px; }
+.screens img { height: 470px; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+.screens figcaption { color: var(--muted); font-size: 19px; }
 .flow { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .flow .box { padding: 20px 18px; }
 .flow .box + .box { border-left: 1px solid var(--line); }
-.flow .box h3 { font-size: 15px; }
-.flow .box p { font-size: 16px; color: var(--muted); }
+.flow .box h3 { font-size: 20px; }
+.flow .box p { font-size: 18px; color: var(--muted); }
 .flow .code { background: var(--ink); }
 .flow .code h3, .flow .code p { color: #fff; }
-.legend { color: var(--muted); font-size: 15px; margin-top: -14px; }
+.legend { color: var(--muted); font-size: 18px; margin-top: -16px; }
 .under { margin-top: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 21px; margin-top: auto; }
 td { padding: 14px 0; border-top: 1px solid var(--line); }
@@ -63,23 +58,26 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: auto; }
 .steps figure { margin: 0; display: grid; gap: 14px; }
 .steps img { width: 100%; height: 300px; object-fit: cover; object-position: top; background: #fff; border-radius: 8px; border: 1px solid var(--line); }
-.steps b { font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
-.steps p { font-size: 18px; color: #3a3a37; margin-top: 4px; }
+.steps b { font-size: 20px; font-weight: 600; }
+.steps p { font-size: 19px; color: #3a3a37; margin-top: 4px; }
 .anno { display: grid; grid-template-columns: 540px 1fr; gap: 64px; align-items: center; margin-top: auto; }
 .shot { position: relative; }
 .shot img { width: 100%; display: block; border-radius: 16px; border: 1px solid var(--line); }
 .mk { position: absolute; left: -16px; width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; display: grid; place-items: center; letter-spacing: .04em; }
-.tight li { font-size: 19px; padding: 11px 0 11px 56px; }
-.tight li::before { top: 14px; }
 .trio .box { border-top: 4px solid var(--c); padding: 20px 22px; }
-.trio .box p { font-size: 16px; line-height: 1.5; color: #2a2a28; }
-.trio .tag { color: var(--muted); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; margin-top: auto; }
+.trio .box p { font-size: 21px; line-height: 1.45; color: #2a2a28; }
+.trio .tag { color: var(--muted); font-size: 17px; margin-top: auto; padding-top: 8px; }
 .finale { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: end; margin-top: auto; }
 .finale .end { font-size: 66px; margin: 0; }
 .try { display: flex; gap: 22px; align-items: center; background: var(--tile); border: 1px solid var(--line); border-radius: 8px; padding: 20px; }
 .try img { width: 150px; height: 150px; }
-.try b { display: block; font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-.try p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+.try b { display: block; font-size: 19px; font-weight: 600; margin-bottom: 8px; }
+.try p { font-size: 17px; color: var(--muted); line-height: 1.6; }
+.big li { font-size: 30px; padding: 22px 0; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+.stats div { padding: 20px 0 0; }
+.stats b { display: block; font-size: 88px; font-weight: 600; letter-spacing: -.04em; line-height: 1; }
+.stats span { color: var(--muted); font-size: 20px; }
 </style>
 </head>
 <body>
@@ -97,7 +95,6 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
 </section>
 
 <section data-n="2">
-  <div class="kicker">Пользователь и его проблема</div>
   <h2>Человек плохо спит и ищет ответ в интернете</h2>
   <div class="cols">
     <div class="box"><h3>Советы спорят</h3><p>Форумы, блогеры и статьи говорят разное, и непонятно, кому верить.</p></div>
@@ -108,7 +105,6 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
 </section>
 
 <section data-n="3">
-  <div class="kicker">Решение</div>
   <h2>Выбрал эксперта, задал вопрос о сне, получил ответ в его стиле со ссылкой на статью</h2>
   <div class="steps">
     <figure><img src="img/step-choice.jpg" alt="Карточки экспертов с примером ответа"><figcaption><b>01 · Выбор</b><p>На карточке видно, как эксперт начнёт ответ</p></figcaption></figure>
@@ -118,16 +114,14 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
 </section>
 
 <section data-n="4">
-  <div class="kicker">Ключевые экраны</div>
+  <h2>Ответ со ссылкой и отказ голосом эксперта</h2>
   <div class="screens">
-    <figure><img src="img/choice.jpg" alt="Экран выбора эксперта"><figcaption>Выбор: разница видна сразу</figcaption></figure>
-    <figure><img src="img/answer.jpg" alt="Ответ трёх экспертов"><figcaption>Ответ со ссылкой на статью</figcaption></figure>
-    <figure><img src="img/refusal.jpg" alt="Отказ в дозе мелатонина"><figcaption>Отказ: вежливо и к врачу</figcaption></figure>
+    <figure><img src="img/answer.jpg" alt="Ответ клинициста со ссылкой на статью"><figcaption>Эксперт помнит, что она уже перенесла зал на утро</figcaption></figure>
+    <figure><img src="img/refusal.jpg" alt="Отказ назвать дозу мелатонина"><figcaption>Дозу не называет, отправляет к врачу и даёт безопасный шаг</figcaption></figure>
   </div>
 </section>
 
 <section data-n="5">
-  <div class="kicker">Дизайнерские решения</div>
   <h2>Разница между экспертами видна ещё до вопроса</h2>
   <div class="anno">
     <div class="shot">
@@ -136,20 +130,17 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
       <span class="mk" style="top: 26%">02</span>
       <span class="mk" style="top: 64%">03</span>
     </div>
-    <ul class="tight">
+    <ul class="num">
       <li>Свой цвет у каждого эксперта, он же в ответах</li>
       <li>Чем эксперт отличается, одной строкой</li>
-      <li>Пример ответа, а не описание профессии</li>
-      <li>По умолчанию отвечают все трое: сразу три подхода</li>
-      <li>Отказ выглядит как ответ эксперта и даёт безопасный шаг</li>
-      <li>Под каждым ответом источник: статья, раздел, год</li>
-      <li>Стиль Sain, удобно с телефона и с компьютера</li>
+      <li>Пример ответа вместо описания профессии</li>
+      <li>По умолчанию отвечают все трое</li>
+      <li>Под каждым ответом статья, раздел и год</li>
     </ul>
   </div>
 </section>
 
 <section data-n="6">
-  <div class="kicker">Архитектура</div>
   <h2>Простой сервер на Python без лишних библиотек</h2>
   <div class="flow">
     <div class="box"><h3>Сайт</h3><p>одна страница, обращается к серверу</p></div>
@@ -167,48 +158,40 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
 </section>
 
 <section data-n="7">
-  <div class="kicker">ИИ-часть</div>
-  <h2>Модель пишет текст, код следит за безопасностью</h2>
-  <div class="two">
-    <ul>
-      <li>Два обращения к модели: понять вопрос и написать ответ</li>
-      <li>Раздел статьи выбирает код, поэтому ссылка всегда настоящая</li>
-      <li>Три эксперта ссылаются на одну статью, но рассуждают по-разному</li>
-    </ul>
-    <ul>
-      <li>Эксперт описан в файле: нового можно добавить без программиста</li>
-      <li>Если в ответ попала доза или диагноз, модель переписывает его, а при повторе выдаётся безопасный текст</li>
-      <li>Эксперты помнят историю человека: что он уже пробовал и о чём просил; чат помнит прошлую статью</li>
-    </ul>
-  </div>
+  <h2>Как работает ИИ-часть</h2>
+  <ul class="big">
+    <li>Два вызова модели на вопрос: понять его и написать ответ сразу за трёх экспертов</li>
+    <li>Раздел статьи выбирает код, поэтому ссылка всегда настоящая</li>
+    <li>Код ищет в ответе дозы и диагнозы; модель переписывает, при повторе выдаётся безопасный текст</li>
+    <li>Эксперты помнят историю человека: что он уже пробовал и о чём просил</li>
+  </ul>
 </section>
 
 <section data-n="8">
-  <div class="kicker">Живой пример</div>
   <h2>«Пью кофе в пять вечера, это мешает уснуть?»</h2>
   <div class="cols trio">
-    <div class="box" style="--c: var(--clinician)"><h3><span class="dot"></span>Клиницист</h3><p>Кофе в пять вечера может задерживать засыпание, хотя при вашем обычном отходе ко сну в 23:20 он выпит больше чем за три часа до него. … Вы писали, что после обеда перешли на ройбуш и ведёте записи последнего кофе и отхода ко сну: они помогут увидеть закономерность.</p><span class="tag">На «вы»: вывод и его надёжность</span></div>
-    <div class="box" style="--c: var(--biohacker)"><h3><span class="dot"></span>Биохакер</h3><p>Ты уже замечала, что после капучино после четырёх засыпаешь позже, и ведёшь записи, так что не начинаем с нуля. Гипотеза: кофе в пять сдвигает засыпание. … Меряем: в блокноте время последнего кофе и когда легла, как ты уже делаешь.</p><span class="tag">На «ты»: эксперимент на себе</span></div>
-    <div class="box" style="--c: var(--nutritionist)"><h3><span class="dot"></span>Нутрициолог</h3><p>Да, кофе в пять может мешать уснуть, но не у всех одинаково. … Ты решила после обеда пить ройбуш, и это как раз мягкая замена без отказа от утреннего кофе. Продолжай отмечать в блокноте время последнего кофе и отхода ко сну.</p><span class="tag">На «ты»: одна замена в дне</span></div>
+    <div class="box" style="--c: var(--clinician)"><h3><span class="dot"></span>Клиницист</h3><p>При вашем отходе ко сну в 23:20 кофе в пять выпит больше чем за три часа до сна. … Вы писали, что после обеда перешли на ройбуш и ведёте записи: они покажут закономерность.</p><span class="tag">На «вы»: вывод и его надёжность</span></div>
+    <div class="box" style="--c: var(--biohacker)"><h3><span class="dot"></span>Биохакер</h3><p>Ты уже замечала, что после капучино после четырёх засыпаешь позже, так что не начинаем с нуля. … Меряем: в блокноте время последнего кофе и когда легла.</p><span class="tag">На «ты»: эксперимент на себе</span></div>
+    <div class="box" style="--c: var(--nutritionist)"><h3><span class="dot"></span>Нутрициолог</h3><p>Ты решила после обеда пить ройбуш, и это как раз мягкая замена без отказа от утреннего кофе. … Продолжай отмечать в блокноте последний кофе и отбой.</p><span class="tag">На «ты»: одна замена в дне</span></div>
   </div>
-  <p class="legend under">У всех троих один источник: Dose and timing effects of caffeine on subsequent sleep, рандомизированное исследование, 2025. Ответы из живого чата на final-наборе, сокращены по предложениям: эксперты вспомнили капучино, ройбуш и блокнот из истории пользовательницы.</p>
+  <p class="legend under">Один источник у всех троих: Dose and timing effects of caffeine on subsequent sleep, 2025. Капучино, ройбуш и блокнот эксперты сами взяли из истории пользовательницы.</p>
 </section>
 
 <section data-n="9">
-  <div class="kicker">Стоимость и скорость</div>
-  <h2>Весь тестовый набор за 73 секунды и 81 тыс. токенов</h2>
+  <h2>Точность и цена на тестовом наборе</h2>
+  <div class="stats">
+    <div><b>30/30</b><span>опасных вопросов: верный отказ со ссылкой</span></div>
+    <div><b>30/30</b><span>обычных вопросов: ответ с верной ссылкой</span></div>
+    <div><b>12/12</b><span>судья узнал эксперта только по тексту</span></div>
+  </div>
   <table>
-    <tr><td>Опасные вопросы: правильный отказ со ссылкой</td><td>30 из 30</td></tr>
-    <tr><td>Обычные вопросы: ответ с верной ссылкой</td><td>30 из 30</td></tr>
-    <tr><td>Судья угадал эксперта только по тексту</td><td>12 из 12</td></tr>
-    <tr><td>Весь тестовый набор: время и токены</td><td>73 с · 81 тыс.</td></tr>
+    <tr><td>Весь тестовый набор, 60 вопросов</td><td>73 с · 81 тыс. токенов</td></tr>
     <tr><td>Онлайн-набор, 99 вопросов (оценка)</td><td>~135 тыс. из 300 тыс.</td></tr>
     <tr><td>Один вопрос всем трём экспертам в чате</td><td>~6,6 тыс. токенов</td></tr>
   </table>
 </section>
 
 <section data-n="10">
-  <div class="kicker">Требования заказчика</div>
   <h2>Безопасность, точность и свой голос у каждого</h2>
   <div class="cols">
     <div class="box"><h3>Безопасность</h3><p>Без диагнозов, доз и оценки лекарств. Вместо этого мягко советуем врача и даём один безопасный шаг из статьи.</p></div>
@@ -223,24 +206,16 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
 </section>
 
 <section data-n="11">
-  <div class="kicker">Что пробовали</div>
   <h2>От чего отказались и почему</h2>
-  <div class="two">
-    <ul>
-      <li>Несколько ссылок в ответе: больше шанс сослаться не на ту статью</li>
-      <li>Выбор раздела моделью: код делает это точнее, и это легко проверить</li>
-      <li>Отдельный запрос на каждого эксперта: дороже, а ссылки могут разойтись</li>
-    </ul>
-    <ul>
-      <li>Заготовленные ответы на примеры: дешевле, но ответы теряют живость</li>
-      <li>Урезанное рассуждение модели: экономия не стоит риска на показе</li>
-      <li>Другие модели в песочнице: жюри должно видеть ту же модель, что и в оценке</li>
-    </ul>
-  </div>
+  <ul class="big">
+    <li>Несколько ссылок в ответе: больше шанс сослаться не на ту статью</li>
+    <li>Выбор раздела моделью: код делает это точнее, и это легко проверить</li>
+    <li>Отдельный запрос на каждого эксперта: дороже, а ссылки могут разойтись</li>
+    <li>Заготовленные ответы на примеры: дешевле, но ответы теряют живость</li>
+  </ul>
 </section>
 
 <section data-n="12">
-  <div class="kicker">Что дальше</div>
   <h2>От демо к продукту Sain</h2>
   <ul>
     <li>Ответы появляются по мере написания, без ожидания всех трёх</li>
