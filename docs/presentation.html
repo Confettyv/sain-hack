@@ -74,6 +74,7 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
 .try b { display: block; font-size: 19px; font-weight: 600; margin-bottom: 8px; }
 .try p { font-size: 17px; color: var(--muted); line-height: 1.6; }
 .big li { font-size: 30px; padding: 22px 0; }
+.cat { position: absolute; z-index: 2; object-fit: fill; pointer-events: none; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
 .stats div { padding: 20px 0 0; }
 .stats b { display: block; font-size: 88px; font-weight: 600; letter-spacing: -.04em; line-height: 1; }
@@ -92,6 +93,8 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <div><b>Максим</b><span>тестирование, поиск ошибок</span></div>
     <div><b>Алим</b><span>AI-инженер: сервер и модель</span></div>
   </div>
+  <img class="cat" src="img/qr.svg" alt="QR-код стенда" style="left:1060px;top:140px;width:150px;height:150px">
+  <img class="cat" id="k1" src="img/cats/k1.png" alt="" style="left:762px;top:28px;width:245px;height:331px">
 </section>
 
 <section data-n="2">
@@ -102,15 +105,18 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <div class="box"><h3>Опасные советы</h3><p>Чат-бот легко назовёт дозу мелатонина или поставит «диагноз» без врача.</p></div>
   </div>
   <p class="muted under">Sain нужен помощник, у которого каждый эксперт говорит по-своему, любой ответ опирается на статью, а диагнозы, лекарства и дозы остаются за врачом.</p>
+  <img class="cat" id="k2" src="img/cats/k2.png" alt="" style="left:36px;top:277px;width:293px;height:383px;transform:rotate(75.8deg) scaleX(-1)">
+  <img class="cat" id="k3" src="img/cats/k3.png" alt="" style="left:721px;top:167px;width:461px;height:572px;transform:rotate(233.7deg)">
 </section>
 
 <section data-n="3">
-  <h2>Выбрал эксперта, задал вопрос о сне, получил ответ в его стиле со ссылкой на статью</h2>
+  <h2 style="max-width: 880px">Выбрал эксперта, задал вопрос о сне, получил ответ в его стиле со ссылкой на статью</h2>
   <div class="steps">
     <figure><img src="img/step-choice.jpg" alt="Карточки экспертов с примером ответа"><figcaption><b>01 · Выбор</b><p>На карточке видно, как эксперт начнёт ответ</p></figcaption></figure>
     <figure><img src="img/step-question.jpg" alt="Вопрос в поле ввода" style="object-position: bottom"><figcaption><b>02 · Вопрос</b><p>Своими словами или готовый пример в одно касание</p></figcaption></figure>
     <figure><img src="img/step-answer.jpg" alt="Ответ клинициста со ссылкой"><figcaption><b>03 · Ответ</b><p>Три стиля, одна статья; «Спросить дальше» продолжает разговор</p></figcaption></figure>
   </div>
+  <img class="cat" id="k7" src="img/cats/k7.png" alt="" style="left:960px;top:-20px;width:300px;height:270px">
 </section>
 
 <section data-n="4">
@@ -119,6 +125,7 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <figure><img src="img/answer.jpg" alt="Ответ клинициста со ссылкой на статью"><figcaption>Эксперт помнит, что она уже перенесла зал на утро</figcaption></figure>
     <figure><img src="img/refusal.jpg" alt="Отказ назвать дозу мелатонина"><figcaption>Дозу не называет, отправляет к врачу и даёт безопасный шаг</figcaption></figure>
   </div>
+  <img class="cat" id="k10" src="img/cats/k10.png" alt="" style="left:1030px;top:332px;width:403px;height:302px;transform:rotate(86.9deg)">
 </section>
 
 <section data-n="5">
@@ -138,10 +145,11 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
       <li>Под каждым ответом статья, раздел и год</li>
     </ul>
   </div>
+  <img class="cat" id="k12" src="img/cats/k12.png" alt="" style="left:494px;top:150px;width:173px;height:294px">
 </section>
 
 <section data-n="6">
-  <h2>Простой сервер на Python без лишних библиотек</h2>
+  <h2 style="max-width: 900px">Простой сервер на Python без лишних библиотек</h2>
   <div class="flow">
     <div class="box"><h3>Сайт</h3><p>одна страница, обращается к серверу</p></div>
     <div class="box"><h3>Разбор</h3><p>модель понимает вопрос и подбирает статью</p></div>
@@ -155,6 +163,7 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <div class="box"><h3>Надёжность</h3><p>Даже если что-то сломалось, пользователь получит ответ со ссылкой</p></div>
     <div class="box"><h3>Лёгкость</h3><p>Около 1 100 строк кода и 20 МБ памяти из 512 доступных</p></div>
   </div>
+  <img class="cat" id="k13" src="img/cats/k13.png" alt="" style="left:1000px;top:-60px;width:250px;height:241px;transform:scaleX(-1)">
 </section>
 
 <section data-n="7">
@@ -165,6 +174,7 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <li>Код ищет в ответе дозы и диагнозы; модель переписывает, при повторе выдаётся безопасный текст</li>
     <li>Эксперты помнят историю человека: что он уже пробовал и о чём просил</li>
   </ul>
+  <img class="cat" id="k14" src="img/cats/k14.png" alt="" style="left:674px;top:-272px;width:634px;height:639px;transform:rotate(-9.9deg) scaleX(-1)">
 </section>
 
 <section data-n="8">
@@ -174,7 +184,8 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <div class="box" style="--c: var(--biohacker)"><h3><span class="dot"></span>Биохакер</h3><p>Ты уже замечала, что после капучино после четырёх засыпаешь позже, так что не начинаем с нуля. … Меряем: в блокноте время последнего кофе и когда легла.</p><span class="tag">На «ты»: эксперимент на себе</span></div>
     <div class="box" style="--c: var(--nutritionist)"><h3><span class="dot"></span>Нутрициолог</h3><p>Ты решила после обеда пить ройбуш, и это как раз мягкая замена без отказа от утреннего кофе. … Продолжай отмечать в блокноте последний кофе и отбой.</p><span class="tag">На «ты»: одна замена в дне</span></div>
   </div>
-  <p class="legend under">Один источник у всех троих: Dose and timing effects of caffeine on subsequent sleep, 2025. Капучино, ройбуш и блокнот эксперты сами взяли из истории пользовательницы.</p>
+  <p class="legend under" style="max-width: 640px">Один источник у всех троих: Dose and timing effects of caffeine on subsequent sleep, 2025. Капучино, ройбуш и блокнот эксперты сами взяли из истории пользовательницы.</p>
+  <img class="cat" id="k18" src="img/cats/k18.png" alt="" style="left:730px;top:455px;width:480px;height:214px">
 </section>
 
 <section data-n="9">
@@ -189,6 +200,8 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <tr><td>Онлайн-набор, 99 вопросов (оценка)</td><td>~135 тыс. из 300 тыс.</td></tr>
     <tr><td>Один вопрос всем трём экспертам в чате</td><td>~6,6 тыс. токенов</td></tr>
   </table>
+  <img class="cat" id="k19" src="img/cats/k19.png" alt="" style="left:996px;top:26px;width:298px;height:239px">
+  <img class="cat" id="k20" src="img/cats/k20.png" alt="" style="left:524px;top:360px;width:337px;height:450px">
 </section>
 
 <section data-n="10">
@@ -203,6 +216,7 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <div class="box" style="--c: var(--biohacker)"><h3><span class="dot"></span>Биохакер</h3><p>На «ты»: проверь на себе, что поменять и что замерить</p></div>
     <div class="box" style="--c: var(--nutritionist)"><h3><span class="dot"></span>Нутрициолог</h3><p>На «ты», тепло: одна маленькая замена в привычном дне</p></div>
   </div>
+  <img class="cat" id="k24" src="img/cats/k24.png" alt="" style="left:125px;top:356px;width:79px;height:155px;transform:scaleX(-1)">
 </section>
 
 <section data-n="11">
@@ -213,6 +227,8 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
     <li>Отдельный запрос на каждого эксперта: дороже, а ссылки могут разойтись</li>
     <li>Заготовленные ответы на примеры: дешевле, но ответы теряют живость</li>
   </ul>
+  <img class="cat" id="k25" src="img/cats/k25.png" alt="" style="left:-1px;top:500px;width:231px;height:263px">
+  <img class="cat" id="k26" src="img/cats/k26.png" alt="" style="left:1020px;top:334px;width:259px;height:357px">
 </section>
 
 <section data-n="12">
@@ -229,6 +245,7 @@ td:last-child { text-align: right; font-weight: 600; font-size: 30px; letter-spa
       <div><b>team01.hack.be-healthy.tech</b><p>«Почему я просыпаюсь в 4 утра?»<br>«Пью кофе в пять вечера, это мешает?»<br>«Сколько мелатонина пить перед сном?»</p></div>
     </div>
   </div>
+  <img class="cat" id="k27" src="img/cats/k27.png" alt="" style="left:920px;top:170px;width:290px;height:277px">
 </section>
 
 </body>
